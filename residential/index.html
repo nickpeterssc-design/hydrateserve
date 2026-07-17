@@ -64,9 +64,8 @@ header.scrolled .nav-cta:hover,.nav-cta:hover{background:var(--ink);color:#fff;b
   .mobile-cta{display:inline-block;font-size:10px;letter-spacing:.2em;text-transform:uppercase;font-weight:500;border:1px solid currentColor;padding:9px 18px;border-radius:100px;margin-left:auto;margin-right:18px}
 }
 
-/* ---------- toggle bar (sits above the hotspot stage) ---------- */
-.toggle-bar{background:var(--ink);color:#fff;display:flex;justify-content:center;
-  padding:calc(72px + clamp(18px,3vh,34px)) var(--pad) clamp(18px,3vh,34px)}
+/* ---------- toggle over the hero (mirrors the commercial page) ---------- */
+.toggle-over{position:absolute;z-index:3;top:calc(72px + clamp(18px,3vh,34px));left:0;right:0;display:flex;justify-content:center;padding:0 var(--pad)}
 .visually-hidden{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 .btn{display:inline-block;font-size:11.5px;letter-spacing:.24em;text-transform:uppercase;font-weight:500;padding:16px 34px;border-radius:100px;transition:all .3s}
 .btn-solid{background:#fff;color:var(--ink)}
@@ -84,9 +83,13 @@ header.scrolled .nav-cta:hover,.nav-cta:hover{background:var(--ink);color:#fff;b
    always keeps the photo's native ratio, and the pins live in the frame — so
    when the frame is zoomed or shifted, the pins move with their parts and
    stay locked. Never put a pin outside the frame. */
-.stage-wrap{background:var(--ink);padding:0 0 clamp(20px,3vh,40px)}
+.stage-wrap{position:relative;background:var(--ink);padding:0 0 clamp(20px,3vh,40px)}
 .hs-stage{position:relative;aspect-ratio:var(--stage-ratio,var(--hero-ratio));overflow:hidden;
   background:radial-gradient(100% 80% at 62% 30%,rgba(15,84,104,.30),transparent 62%),linear-gradient(170deg,#16323D,#0B1E26)}
+/* Darkens the top of the hero so the header and toggle stay legible over the
+   image. Fades to clear by ~44%, above where any pin sits. */
+.stage-scrim{position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(to bottom,rgba(11,30,38,.80) 0,rgba(11,30,38,.28) 20%,transparent 44%)}
 .hs-frame{position:absolute;left:var(--frame-x,0);top:var(--frame-y,0);width:100%;aspect-ratio:var(--hero-ratio);
   transform:scale(var(--zoom,1));transform-origin:var(--fx,50%) var(--fy,50%)}
 .hs-frame>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
@@ -116,8 +119,8 @@ header.scrolled .nav-cta:hover,.nav-cta:hover{background:var(--ink);color:#fff;b
    place it at the stage centre, then --zoom scales about it. Showing image
    x 35-68%, y 28-87% — the tap and all three units. */
 @media(max-width:700px){
-  .hs-stage{--stage-ratio:1/1}
-  .hs-frame{--zoom:3.03;--fx:51.5%;--fy:57.5%;--frame-x:-1.5%;--frame-y:17.6%}
+  .hs-stage{--stage-ratio:3/4}
+  .hs-frame{--zoom:3.03;--fx:51.5%;--fy:57.5%;--frame-x:-1.5%;--frame-y:39%}
 }
 
 /* ---------- parts index ---------- */
@@ -235,24 +238,15 @@ footer .brand{font-size:14px;color:var(--ink)}
   </nav>
 </header>
 
-<!-- ================= TOGGLE BAR ================= -->
-<div class="toggle-bar" id="top">
-  <!-- Kept for search engines and screen readers now that the visible headline is gone. -->
-  <h1 class="visually-hidden">HydrateServe Residential - filtered, sparkling and boiling water at home</h1>
-  <div class="seg" role="group" aria-label="Choose commercial or residential">
-    <a href="/">Commercial</a>
-    <a href="/residential" aria-current="true">Residential</a>
-  </div>
-</div>
-
-<!-- ================= HOTSPOT STAGE ================= -->
-<!--
+<!-- ================= HERO: HOTSPOT STAGE + TOGGLE OVERLAY =================
   Hero photo: assets/residential-hero.png. If it is ever replaced, update
   --hero-ratio (top of the stylesheet) to the new photo's native ratio.
   To place the pins: open this page with ?calibrate on the URL and click each
   part in the image - it prints the exact left/top to paste onto the pin.
+  The toggle floats over the image (like the commercial hero) rather than
+  sitting in a solid band, so the photo shows behind it.
 -->
-<div class="stage-wrap">
+<div class="stage-wrap" id="top">
   <div class="hs-stage" id="stage">
     <div class="hs-frame">
       <img src="../assets/residential-hero.png" alt="A residential kitchen showing the HydrateServe tap at the sink and the sparkling, boiling water and filtration units in the cabinet below." onerror="this.remove()">
@@ -270,6 +264,16 @@ footer .brand{font-size:14px;color:var(--ink)}
       <a class="pin" href="#filter" style="left:57.8%;top:76.5%" aria-label="Filtration">
         <span class="dot" aria-hidden="true"></span><span class="label">Filtration</span>
       </a>
+    </div>
+    <div class="stage-scrim" aria-hidden="true"></div>
+  </div>
+
+  <div class="toggle-over">
+    <!-- Kept for search engines and screen readers now that the visible headline is gone. -->
+    <h1 class="visually-hidden">HydrateServe Residential - filtered, sparkling and boiling water at home</h1>
+    <div class="seg" role="group" aria-label="Choose commercial or residential">
+      <a href="/">Commercial</a>
+      <a href="/residential" aria-current="true">Residential</a>
     </div>
   </div>
 
