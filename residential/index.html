@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HydrateServe Residential - Filtered, Sparkling &amp; Boiling Water at Home | NZ</title>
+<meta name="description" content="Filtered, chilled, sparkling and boiling water from one tap at home. HydrateServe residential systems are installed and serviced across New Zealand by Hydrate Filters.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Figtree:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0B1E26;          /* deep marine ink */
+  --ink-soft:#22414D;
+  --white:#FFFFFF;
+  --mist:#F3F7F8;         /* glacial pale */
+  --line:#DCE6E9;         /* hairline */
+  --steel:#7C929C;        /* muted steel for labels */
+  --glass:#0F5468;        /* deep glass blue accent */
+  --display:'Marcellus',serif;
+  --body:'Figtree',sans-serif;
+  --pad:clamp(24px,6vw,96px);
+  /* Exact native ratio of assets/residential-hero.png (1672x941). Must match the
+     photo, or object-fit:cover crops it and every pin drifts off its part. */
+  --hero-ratio:1672/941;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--body);font-weight:300;color:var(--ink);background:var(--white);line-height:1.7;font-size:17px;-webkit-font-smoothing:antialiased}
+img,video{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+::selection{background:var(--glass);color:#fff}
+
+/* ---------- utility type ---------- */
+.eyebrow{font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:var(--steel);font-weight:500}
+.display{font-family:var(--display);font-weight:400;line-height:1.12;letter-spacing:.01em}
+h2.display{font-size:clamp(30px,4.2vw,52px)}
+h3.display{font-size:clamp(22px,2.6vw,30px)}
+.lede{font-size:clamp(18px,2vw,21px);font-weight:300;color:var(--ink-soft);max-width:56ch}
+p{max-width:62ch}
+
+/* ---------- nav ---------- */
+header{position:fixed;inset:0 0 auto 0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:22px var(--pad);transition:box-shadow .4s ease}
+header::before{content:"";position:absolute;inset:0;background:rgba(255,255,255,.92);backdrop-filter:blur(14px);opacity:0;transition:opacity .4s ease;z-index:-1}
+header.scrolled::before{opacity:1}
+header.scrolled{box-shadow:0 1px 0 var(--line)}
+.brand{font-family:var(--display);font-size:19px;letter-spacing:.32em;text-transform:uppercase}
+.brand span{color:var(--glass)}
+header.on-hero:not(.scrolled){color:#fff}
+header.on-hero:not(.scrolled) .brand span{color:#fff}
+nav{display:flex;gap:38px;align-items:center}
+nav a{font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;font-weight:500;opacity:.85;transition:opacity .25s}
+nav a:hover{opacity:1}
+.nav-cta{border:1px solid currentColor;padding:10px 22px;border-radius:100px;transition:background .3s,color .3s,border-color .3s}
+header.scrolled .nav-cta:hover,.nav-cta:hover{background:var(--ink);color:#fff;border-color:var(--ink);opacity:1}
+.menu-btn{display:none;background:none;border:0;color:inherit;font:inherit;cursor:pointer;letter-spacing:.22em;text-transform:uppercase;font-size:11.5px}
+.mobile-cta{display:none}
+@media(max-width:860px){
+  nav{position:fixed;inset:0;background:var(--white);color:var(--ink);flex-direction:column;justify-content:center;gap:30px;transform:translateY(-102%);visibility:hidden;transition:transform .45s cubic-bezier(.7,0,.2,1),visibility 0s linear .45s}
+  nav.open{transform:translateY(0);visibility:visible;transition:transform .45s cubic-bezier(.7,0,.2,1)}
+  nav a{font-size:14px}
+  .menu-btn{display:block;position:relative;z-index:60}
+  .hide-mobile{display:none}
+  .mobile-cta{display:inline-block;font-size:10px;letter-spacing:.2em;text-transform:uppercase;font-weight:500;border:1px solid currentColor;padding:9px 18px;border-radius:100px;margin-left:auto;margin-right:18px}
+}
+
+/* ---------- toggle bar (sits above the hotspot stage) ---------- */
+.toggle-bar{background:var(--ink);color:#fff;display:flex;justify-content:center;
+  padding:calc(72px + clamp(18px,3vh,34px)) var(--pad) clamp(18px,3vh,34px)}
+.visually-hidden{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.btn{display:inline-block;font-size:11.5px;letter-spacing:.24em;text-transform:uppercase;font-weight:500;padding:16px 34px;border-radius:100px;transition:all .3s}
+.btn-solid{background:#fff;color:var(--ink)}
+.btn-solid:hover{background:var(--mist)}
+.seg{display:inline-flex;align-items:center;padding:4px;border:1px solid rgba(255,255,255,.4);border-radius:100px;background:rgba(11,30,38,.28)}
+.seg a{font-size:11.5px;letter-spacing:.24em;text-transform:uppercase;font-weight:500;padding:12px 26px;border-radius:100px;color:rgba(255,255,255,.72);transition:all .3s;white-space:nowrap}
+.seg a:hover{color:#fff}
+.seg a[aria-current="true"]{background:#fff;color:var(--ink)}
+.seg a[aria-current="true"]:hover{color:var(--ink)}
+
+/* ---------- hotspot stage ---------- */
+.stage-wrap{background:var(--ink);padding:0 0 clamp(20px,3vh,40px)}
+.hs-stage{position:relative;aspect-ratio:var(--hero-ratio);overflow:hidden;
+  background:radial-gradient(100% 80% at 62% 30%,rgba(15,84,104,.30),transparent 62%),linear-gradient(170deg,#16323D,#0B1E26)}
+.hs-stage>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+.hs-stage .placeholder{position:absolute;inset:0;display:grid;place-items:center;z-index:0;color:rgba(255,255,255,.32);font-size:11px;letter-spacing:.3em;text-transform:uppercase;text-align:center;padding:0 24px}
+.hs-stage>img:not([hidden])~.placeholder{display:none}
+
+.pin{position:absolute;z-index:2;width:38px;height:38px;transform:translate(-50%,-50%);display:grid;place-items:center;border-radius:50%;cursor:pointer}
+.pin::before{content:"";position:absolute;width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.75);animation:pulse 2.8s cubic-bezier(.4,0,.2,1) infinite}
+.pin .dot{position:relative;width:10px;height:10px;border-radius:50%;background:#fff;box-shadow:0 2px 12px rgba(0,0,0,.45);transition:transform .3s ease}
+.pin:hover .dot,.pin:focus-visible .dot{transform:scale(1.6)}
+.pin:focus-visible{outline:2px solid #fff;outline-offset:4px}
+.pin .label{position:absolute;left:50%;bottom:calc(100% + 6px);transform:translateX(-50%) translateY(6px);white-space:nowrap;
+  font-size:10px;letter-spacing:.24em;text-transform:uppercase;font-weight:500;line-height:1;color:var(--ink);
+  background:rgba(255,255,255,.96);padding:10px 16px;border-radius:100px;opacity:0;pointer-events:none;transition:opacity .3s ease,transform .3s ease}
+.pin:hover .label,.pin:focus-visible .label{opacity:1;transform:translateX(-50%) translateY(0)}
+@keyframes pulse{0%{transform:scale(.5);opacity:.85}70%{transform:scale(1.5);opacity:0}100%{transform:scale(1.5);opacity:0}}
+@media(prefers-reduced-motion:reduce){.pin::before{animation:none;opacity:.5}}
+/* Pins are a fiddly hover target on touch; the parts index below carries the same links. */
+@media(max-width:900px){.pin{width:30px;height:30px}.pin::before{width:30px;height:30px}.pin .label{display:none}}
+/* The three under-bench units sit ~7% apart, so below roughly 430px of stage
+   width their pins collide. Hand off to the parts index instead. */
+@media(max-width:640px){.pin{display:none}}
+
+/* ---------- parts index ---------- */
+.parts-index{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(255,255,255,.16);border-block:1px solid rgba(255,255,255,.16)}
+@media(max-width:860px){.parts-index{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:460px){.parts-index{grid-template-columns:1fr}}
+.parts-index a{background:var(--ink);color:#fff;padding:26px clamp(18px,2.4vw,32px);display:flex;flex-direction:column;gap:8px;transition:background .3s}
+.parts-index a:hover{background:#122E39}
+.parts-index .n{font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.5);font-weight:500}
+.parts-index .t{font-family:var(--display);font-size:18px;letter-spacing:.05em}
+
+/* ---------- sections ---------- */
+section{padding:clamp(84px,12vh,150px) var(--pad)}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:clamp(40px,6vw,110px);align-items:center}
+@media(max-width:900px){.grid-2{grid-template-columns:1fr}}
+.sec-head{margin-bottom:clamp(44px,6vh,72px)}
+.sec-head .eyebrow{display:block;margin-bottom:18px}
+/* Photo slot. Override the shape per section with --slot-ratio (e.g.
+   style="--slot-ratio:16/9") so a landscape shot isn't cropped to portrait.
+   A slot with no image, or a broken src, just shows the gradient. */
+.media-slot{position:relative;overflow:hidden;aspect-ratio:var(--slot-ratio,4/5);border:1px solid var(--line);border-radius:2px;background:
+  radial-gradient(100% 80% at 70% 15%,rgba(15,84,104,.10),transparent 60%),
+  linear-gradient(170deg,var(--mist),#E9F0F2)}
+.media-slot.wide{--slot-ratio:16/10}
+.media-slot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:var(--slot-pos,center)}
+
+/* ---------- part sections ---------- */
+.part{scroll-margin-top:92px}
+.part:nth-of-type(even){background:var(--mist)}
+.part .num{font-family:var(--display);font-size:clamp(52px,7vw,86px);color:var(--line);line-height:1;display:block;margin-bottom:18px}
+.part h2{margin-bottom:20px}
+.part .spec{list-style:none;margin-top:30px;border-top:1px solid var(--line)}
+.part .spec li{padding:14px 0;border-bottom:1px solid var(--line);font-size:15px;color:var(--ink-soft);display:flex;gap:16px;align-items:baseline}
+.part .spec li::before{content:"";flex:0 0 5px;height:5px;border-radius:50%;background:var(--glass);transform:translateY(-3px)}
+
+/* signature: fine bubbles rising */
+.bubbles{position:absolute;inset:0;pointer-events:none}
+.bubble{position:absolute;bottom:-12px;border-radius:50%;border:1px solid rgba(15,84,104,.35);animation:rise linear infinite}
+@keyframes rise{
+  0%{transform:translateY(0) translateX(0);opacity:0}
+  12%{opacity:.9}
+  100%{transform:translateY(-420px) translateX(14px);opacity:0}
+}
+.bubbles-section{position:relative;overflow:hidden}
+.bubbles-section>*{position:relative;z-index:1}
+.bubbles-section .bubbles{z-index:0}
+.bubbles-section .bubble{border-color:rgba(15,84,104,.22);animation-name:rise-tall}
+@keyframes rise-tall{
+  0%{transform:translateY(0) translateX(0);opacity:0}
+  10%{opacity:.8}
+  100%{transform:translateY(-115vh) translateX(22px);opacity:0}
+}
+
+/* ---------- sustainability ---------- */
+.sustain{background:var(--mist)}
+.zero-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-top:clamp(48px,6vh,72px)}
+@media(max-width:900px){.zero-row{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.zero-row{grid-template-columns:1fr}}
+.zero{background:var(--mist);padding:clamp(30px,3.5vw,48px);text-align:left}
+.zero b{font-family:var(--display);font-weight:400;font-size:clamp(28px,3.2vw,40px);display:block;margin-bottom:10px;color:var(--glass)}
+.zero span{font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft);font-weight:500}
+
+/* ---------- contact ---------- */
+.contact{background:var(--ink);color:#fff;scroll-margin-top:92px}
+.contact .eyebrow{color:rgba(255,255,255,.6)}
+.contact .lede{color:rgba(255,255,255,.82)}
+form{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:14px}
+@media(max-width:700px){form{grid-template-columns:1fr}}
+.field{display:flex;flex-direction:column;gap:9px}
+.field.full{grid-column:1/-1}
+label{font-size:10.5px;letter-spacing:.28em;text-transform:uppercase;color:rgba(255,255,255,.6);font-weight:500}
+input,textarea{background:transparent;border:0;border-bottom:1px solid rgba(255,255,255,.3);color:#fff;font:inherit;font-weight:300;padding:12px 2px;outline:none;transition:border-color .3s;border-radius:0}
+input::placeholder,textarea::placeholder{color:rgba(255,255,255,.4)}
+input:focus,textarea:focus{border-color:#fff}
+textarea{min-height:110px;resize:vertical}
+.submit{grid-column:1/-1;justify-self:start;margin-top:16px;background:#fff;color:var(--ink);border:0;cursor:pointer}
+.submit:hover{background:var(--mist)}
+
+/* ---------- footer ---------- */
+footer{padding:56px var(--pad);display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap;border-top:1px solid var(--line);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--steel)}
+footer .brand{font-size:14px;color:var(--ink)}
+
+/* ---------- reveal on scroll ---------- */
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .8s ease,transform .8s ease}
+.reveal.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}.bubble{animation:none!important}}
+
+/* ---------- calibration mode (add ?calibrate to the URL) ---------- */
+.calibrating{cursor:crosshair}
+.cal-readout{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:99;background:var(--ink);color:#fff;
+  padding:14px 22px;border-radius:100px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;box-shadow:0 8px 30px rgba(0,0,0,.35)}
+</style>
+</head>
+<body>
+
+<header id="header" class="on-hero">
+  <a class="brand" href="#top">Hydrate<span>Serve</span></a>
+  <a class="mobile-cta" href="#contact">Enquire</a>
+  <button class="menu-btn" id="menuBtn" aria-label="Open menu">Menu</button>
+  <nav id="nav">
+    <a href="#tap">The Tap</a>
+    <a href="#soda">Sparkling</a>
+    <a href="#boiling">Boiling</a>
+    <a href="#filter">Filtration</a>
+    <a class="hide-mobile" href="/who-we-are">About us</a>
+    <a class="nav-cta" href="#contact">Enquire</a>
+  </nav>
+</header>
+
+<!-- ================= TOGGLE BAR ================= -->
+<div class="toggle-bar" id="top">
+  <!-- Kept for search engines and screen readers now that the visible headline is gone. -->
+  <h1 class="visually-hidden">HydrateServe Residential - filtered, sparkling and boiling water at home</h1>
+  <div class="seg" role="group" aria-label="Choose commercial or residential">
+    <a href="/">Commercial</a>
+    <a href="/residential" aria-current="true">Residential</a>
+  </div>
+</div>
+
+<!-- ================= HOTSPOT STAGE ================= -->
+<!--
+  Hero photo: assets/residential-hero.png. If it is ever replaced, update
+  --hero-ratio (top of the stylesheet) to the new photo's native ratio.
+  To place the pins: open this page with ?calibrate on the URL and click each
+  part in the image - it prints the exact left/top to paste onto the pin.
+-->
+<div class="stage-wrap">
+  <div class="hs-stage" id="stage">
+    <img src="../assets/residential-hero.png" alt="A residential kitchen showing the HydrateServe tap at the sink and the sparkling, boiling water and filtration units in the cabinet below." onerror="this.remove()">
+    <div class="placeholder">Residential hero - assets/residential-hero.png</div>
+
+    <a class="pin" href="#tap" style="left:51.6%;top:38.5%" aria-label="The Tap">
+      <span class="dot" aria-hidden="true"></span><span class="label">The Tap</span>
+    </a>
+    <a class="pin" href="#soda" style="left:43.3%;top:76.3%" aria-label="Sparkling">
+      <span class="dot" aria-hidden="true"></span><span class="label">Sparkling</span>
+    </a>
+    <a class="pin" href="#boiling" style="left:50.2%;top:76.3%" aria-label="Boiling">
+      <span class="dot" aria-hidden="true"></span><span class="label">Boiling</span>
+    </a>
+    <a class="pin" href="#filter" style="left:57.8%;top:76.5%" aria-label="Filtration">
+      <span class="dot" aria-hidden="true"></span><span class="label">Filtration</span>
+    </a>
+  </div>
+
+  <!-- Deliberately a div, not a nav: the bare nav{} rule above turns any nav
+       below 860px into the fixed full-screen mobile menu. -->
+  <div class="parts-index" role="navigation" aria-label="System parts">
+    <a href="#tap"><span class="n">01</span><span class="t">The Tap</span></a>
+    <a href="#soda"><span class="n">02</span><span class="t">Sparkling</span></a>
+    <a href="#boiling"><span class="n">03</span><span class="t">Boiling</span></a>
+    <a href="#filter"><span class="n">04</span><span class="t">Filtration</span></a>
+  </div>
+</div>
+
+<!-- ================= 01 · THE TAP ================= -->
+<section class="part" id="tap">
+  <div class="grid-2">
+    <div class="reveal">
+      <span class="num" aria-hidden="true">01</span>
+      <span class="eyebrow" style="display:block;margin-bottom:18px">Above the bench</span>
+      <h2 class="display">Your tap - how you want it.</h2>
+      <p class="lede">One elegant tap - to fit your lifestyle. Configure as desired. Chilled still, fine sparkling, ambient and true boiling water + the standard mains mixer - each on its own control.</p>
+      <ul class="spec">
+        <li>3-5 functions from a single tap</li>
+        <li>Finishes to match your kitchen hardware</li>
+        <li>Child-safe control on the boiling side</li>
+        <li>Watermark certified - 5 year warranty</li>
+      </ul>
+    </div>
+    <div class="media-slot reveal" role="img" aria-label="Photograph slot - the tap in a residential kitchen">
+      <img src="../assets/residential-tap.jpg" alt="The HydrateServe tap installed at a residential kitchen sink." loading="lazy" onerror="this.remove()">
+    </div>
+  </div>
+</section>
+
+<!-- ================= 02 · SPARKLING ================= -->
+<section class="part bubbles-section" id="soda">
+  <div class="bubbles" id="bubblesSoda" aria-hidden="true"></div>
+  <div class="grid-2">
+    <div class="media-slot reveal" role="img" aria-label="Photograph slot - the sparkling unit under the bench">
+      <img src="../assets/residential-soda.jpg" alt="The HydrateServe sparkling unit installed in the cabinet under the sink." loading="lazy" onerror="this.remove()">
+    </div>
+    <div class="reveal">
+      <span class="num" aria-hidden="true">02</span>
+      <span class="eyebrow" style="display:block;margin-bottom:18px">Under the sink</span>
+      <h2 class="display">Sparkling - on demand.</h2>
+      <p class="lede">Food-grade CO₂ is dissolved into chilled, remineralised water under pressure - a fine, persistent bead on demand.</p>
+      <ul class="spec">
+        <li>Adjustable carbonation to your taste</li>
+        <li>Easy CO₂ cylinder swaps</li>
+        <li>Inline carbonation, so it pours cold and sharp</li>
+        <li>Sits alongside the filtration system in the cabinet</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 03 · BOILING WATER ================= -->
+<section class="part" id="boiling">
+  <div class="grid-2">
+    <div class="reveal">
+      <span class="num" aria-hidden="true">03</span>
+      <span class="eyebrow" style="display:block;margin-bottom:18px">Under the sink</span>
+      <h2 class="display">Boiling water. No waiting. No kettle.</h2>
+      <p class="lede">A smart hot water system providing true boiling water on demand. No kettle on the bench, no waiting &amp; next-level energy saving technology.</p>
+      <ul class="spec">
+        <li>True boiling water, straight to the cup</li>
+        <li>Insulated tank - heats what you use, not what you don't</li>
+        <li>Filtered before it's heated, so no scale or off-taste</li>
+        <li>Safety-locked at the tap</li>
+      </ul>
+    </div>
+    <div class="media-slot reveal" role="img" aria-label="Photograph slot - the boiling water unit under the bench">
+      <img src="../assets/residential-boiling.jpg" alt="The HydrateServe boiling water unit installed in the cabinet under the sink." loading="lazy" onerror="this.remove()">
+    </div>
+  </div>
+</section>
+
+<!-- ================= 04 · FILTRATION ================= -->
+<section class="part" id="filter">
+  <div class="grid-2">
+    <div class="media-slot reveal" role="img" aria-label="Photograph slot - the filtration system under the bench">
+      <img src="../assets/residential-filtration.jpg" alt="The HydrateServe filtration system installed in the cabinet under the sink." loading="lazy" onerror="this.remove()">
+    </div>
+    <div class="reveal">
+      <span class="num" aria-hidden="true">04</span>
+      <span class="eyebrow" style="display:block;margin-bottom:18px">Under the sink</span>
+      <h2 class="display">Start pure and build naturally.</h2>
+      <p class="lede">Reverse osmosis filtration strips out what your tap water carries - sediment, chlorine, fluoride, nitrates, taste and odour. Then a patented blend of natural mineral rock puts the calcium, magnesium and trace elements back, the way nature does. 100% natural mineral water - in your kitchen.</p>
+      <ul class="spec">
+        <li>Multi-stage reverse osmosis</li>
+        <li>Industry leading mineral tech - NSF, RoHS and REACH certified</li>
+        <li>Easy cartridge changes</li>
+        <li>Installed free by our professionals NZ wide</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SUSTAINABILITY ================= -->
+<section class="sustain" id="sustainability">
+  <div class="grid-2">
+    <div class="reveal">
+      <span class="eyebrow" style="display:block;margin-bottom:20px">Sustainability</span>
+      <h2 class="display">The best water is the one that never travelled.</h2>
+    </div>
+    <div class="reveal">
+      <p class="lede">Mineral water shipped across the world.</p>
+      <p class="lede" style="margin-top:18px">HydrateServe makes it at the sink - no trucks, no boats, no single-use glass or plastic, just proven technology - certified by the best in the world.</p>
+    </div>
+  </div>
+  <div class="zero-row">
+    <div class="zero reveal"><b>Zero</b><span>Bottles to buy</span></div>
+    <div class="zero reveal"><b>Zero</b><span>Single-use plastic</span></div>
+    <div class="zero reveal"><b>Zero</b><span>Carbon miles</span></div>
+    <div class="zero reveal"><b>Zero</b><span>Contaminants</span></div>
+  </div>
+</section>
+
+<!-- ================= CONTACT ================= -->
+<section id="contact" class="contact">
+  <div class="grid-2" style="align-items:start">
+    <div class="reveal">
+      <span class="eyebrow" style="display:block;margin-bottom:20px">Book a Chat</span>
+      <h2 class="display">Chat with us.</h2>
+      <p class="lede" style="margin-top:24px">Free, no obligation system quotes.</p>
+    </div>
+    <!-- Swap action for your Formspree endpoint -->
+    <form class="reveal" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+      <input type="hidden" name="enquiry_type" value="Residential">
+      <div class="field"><label for="name">Name</label><input id="name" name="name" type="text" required autocomplete="name"></div>
+      <div class="field"><label for="suburb">Suburb</label><input id="suburb" name="suburb" type="text" required></div>
+      <div class="field"><label for="email">Email</label><input id="email" name="email" type="email" required autocomplete="email"></div>
+      <div class="field"><label for="phone">Phone</label><input id="phone" name="phone" type="tel" autocomplete="tel"></div>
+      <div class="field full">
+        <!-- Label hidden rather than removed: the box still needs a name for screen readers. -->
+        <label for="message" class="visually-hidden">Your message</label>
+        <textarea id="message" name="message" placeholder="Your message"></textarea>
+      </div>
+      <button class="btn submit" type="submit">Enquire Today</button>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <a class="brand" href="#top">Hydrate<span style="color:var(--glass)">Serve</span></a>
+  <span><a href="https://hydratefilters.co.nz" target="_blank" rel="noopener" style="border-bottom:1px solid var(--line)">A division of Hydrate Filters Ltd</a> · New Zealand</span>
+  <span>hydrateserve.co.nz</span>
+</footer>
+
+<script>
+// Header state
+const header=document.getElementById('header');
+const onScroll=()=>header.classList.toggle('scrolled',window.scrollY>40);
+onScroll();addEventListener('scroll',onScroll,{passive:true});
+
+// Mobile menu
+const nav=document.getElementById('nav'),btn=document.getElementById('menuBtn');
+btn.addEventListener('click',()=>{const open=nav.classList.toggle('open');btn.textContent=open?'Close':'Menu';});
+nav.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{nav.classList.remove('open');btn.textContent='Menu';}));
+
+// Reveal on scroll
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.14});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+// Signature: fine rising bubbles (sparkling section)
+function spawnBubbles(el,count,durMin,durMax){
+  if(!el || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  for(let i=0;i<count;i++){
+    const b=document.createElement('div');b.className='bubble';
+    const s=2+Math.random()*5;
+    b.style.width=b.style.height=s+'px';
+    b.style.left=(4+Math.random()*92)+'%';
+    const d=durMin+Math.random()*(durMax-durMin);
+    b.style.animationDuration=d+'s';
+    b.style.animationDelay=(-Math.random()*d)+'s';
+    el.appendChild(b);
+  }
+}
+spawnBubbles(document.getElementById('bubblesSoda'),26,10,20);
+
+// Pin calibration - open this page with ?calibrate to place pins against the real photo.
+if(new URLSearchParams(location.search).has('calibrate')){
+  const stage=document.getElementById('stage');
+  const readout=document.createElement('div');
+  readout.className='cal-readout';
+  readout.textContent='Calibrate: click a part in the image';
+  document.body.appendChild(readout);
+  stage.classList.add('calibrating');
+  stage.querySelectorAll('.pin').forEach(p=>p.style.pointerEvents='none');
+  stage.addEventListener('click',e=>{
+    const r=stage.getBoundingClientRect();
+    const left=((e.clientX-r.left)/r.width*100).toFixed(1);
+    const top=((e.clientY-r.top)/r.height*100).toFixed(1);
+    const snippet='style="left:'+left+'%;top:'+top+'%"';
+    readout.textContent=snippet+' - copied';
+    navigator.clipboard&&navigator.clipboard.writeText(snippet).catch(()=>{
+      readout.textContent=snippet;
+    });
+  });
+}
+</script>
+</body>
+</html>

@@ -81,6 +81,11 @@ header.scrolled .nav-cta:hover,.nav-cta:hover{background:var(--ink);color:#fff;b
 .btn-solid:hover{background:var(--mist)}
 .btn-ghost{border:1px solid rgba(255,255,255,.55);color:#fff}
 .btn-ghost:hover{background:rgba(255,255,255,.12);border-color:#fff}
+.seg{display:inline-flex;align-items:center;padding:4px;border:1px solid rgba(255,255,255,.4);border-radius:100px;background:rgba(11,30,38,.28);backdrop-filter:blur(6px)}
+.seg a{font-size:11.5px;letter-spacing:.24em;text-transform:uppercase;font-weight:500;padding:12px 26px;border-radius:100px;color:rgba(255,255,255,.72);transition:all .3s;white-space:nowrap}
+.seg a:hover{color:#fff}
+.seg a[aria-current="true"]{background:#fff;color:var(--ink)}
+.seg a[aria-current="true"]:hover{color:var(--ink)}
 .scroll-hint{position:absolute;z-index:2;right:var(--pad);bottom:clamp(56px,9vh,110px);display:flex;flex-direction:column;align-items:center;gap:14px;color:rgba(255,255,255,.7)}
 .scroll-hint .line{width:1px;height:64px;background:rgba(255,255,255,.4);overflow:hidden;position:relative}
 .scroll-hint .line::after{content:"";position:absolute;left:0;top:-40%;width:100%;height:40%;background:#fff;animation:drip 2.4s ease-in-out infinite}
@@ -208,7 +213,7 @@ footer .brand{font-size:14px;color:var(--ink)}
     <a href="#water">The Water</a>
     <a href="#system">The System</a>
     <a href="#sustainability">Sustainability</a>
-    <a class="hide-mobile" href="/who-we-are">Who We Are</a>
+    <a class="hide-mobile" href="/who-we-are">About us</a>
     <a class="nav-cta" href="#contact">Enquire</a>
   </nav>
 </header>
@@ -227,7 +232,10 @@ footer .brand{font-size:14px;color:var(--ink)}
     <p class="sub">Mineral-rich water, made in your venue. Filtered + mineralised, chilled &amp; sparkling water on tap for kitchens, bars and cafés.</p>
     <div class="hero-cta-row">
       <a class="btn btn-solid" href="#contact">Enquire</a>
-      <a class="btn btn-ghost" href="#system">Explore the Systems</a>
+      <div class="seg" role="group" aria-label="Choose commercial or residential">
+        <a href="#top" aria-current="true">Commercial</a>
+        <a href="/residential">Residential</a>
+      </div>
     </div>
   </div>
   <div class="scroll-hint" aria-hidden="true">
