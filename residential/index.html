@@ -17,6 +17,7 @@
   --line:#DCE6E9;         /* hairline */
   --steel:#7C929C;        /* muted steel for labels */
   --glass:#0F5468;        /* deep glass blue accent */
+  --sky:#5BABD8;          /* light brand blue — the "Serve" in the logo */
   --display:'Marcellus',serif;
   --body:'Figtree',sans-serif;
   --pad:clamp(24px,6vw,96px);
@@ -45,9 +46,9 @@ header::before{content:"";position:absolute;inset:0;background:rgba(255,255,255,
 header.scrolled::before{opacity:1}
 header.scrolled{box-shadow:0 1px 0 var(--line)}
 .brand{font-family:var(--display);font-size:19px;letter-spacing:.32em;text-transform:uppercase}
-.brand span{color:var(--glass)}
+.brand span{color:var(--sky)}
 header.on-hero:not(.scrolled){color:#fff}
-header.on-hero:not(.scrolled) .brand span{color:#fff}
+header.on-hero:not(.scrolled) .brand span{color:var(--sky)}
 nav{display:flex;gap:38px;align-items:center}
 nav a{font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;font-weight:500;opacity:.85;transition:opacity .25s}
 nav a:hover{opacity:1}
@@ -416,7 +417,7 @@ footer .brand{font-size:14px;color:var(--ink)}
 </section>
 
 <footer>
-  <a class="brand" href="#top">Hydrate<span style="color:var(--glass)">Serve</span></a>
+  <a class="brand" href="#top">Hydrate<span style="color:var(--sky)">Serve</span></a>
   <span><a href="https://hydratefilters.co.nz" target="_blank" rel="noopener" style="border-bottom:1px solid var(--line)">A division of Hydrate Filters Ltd</a> · New Zealand</span>
   <span>hydrateserve.co.nz</span>
 </footer>
