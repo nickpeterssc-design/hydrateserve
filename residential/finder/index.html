@@ -299,6 +299,20 @@ const ADDONS = {
 };
 const CO2_NOTE = "CO₂ bottle + regulator included";
 
+// How the customer wants to proceed from the booking screen.
+// "now" is the only route that touches the payment gateway - see startPayment().
+const PAY_OPTIONS = [
+  {key:"now", label:"Pay now",
+   note:"Secure checkout. Your install slot is confirmed as soon as payment clears.",
+   doneTitle:"Payment received", doneSub:"We'll be in touch to book your installation."},
+  {key:"invoice", label:"Request an invoice",
+   note:"We'll email an invoice with payment details - nothing to pay right now.",
+   doneTitle:"Invoice requested", doneSub:"We'll email your invoice shortly."},
+  {key:"call", label:"Request a call from us",
+   note:"We'll call to talk the build through before anything is paid.",
+   doneTitle:"We'll be in touch", doneSub:"One of our team will call you to talk it through."}
+];
+
 /* =============================================================
    STATE
    ============================================================= */
@@ -309,6 +323,7 @@ const state = {
   finish:null,
   filtration:"ufx3",
   addons:new Set(),
+  payment:null,             // now / invoice / call
   fit:{clearance:null, power:null, photo:false}
 };
 
@@ -528,27 +543,36 @@ const screens = [
 
   // 6 · BOOK + PAY
   ()=>{
-    if(state._booked) return `
+    if(state._payPending) return `
+      <div class="done-card">
+        <h1 class="q" style="margin:0 auto">Card payment isn't switched on yet</h1>
+        <p class="sub" style="margin:14px auto 0">Nothing has been charged. Choose <b>Request an invoice</b> or <b>Request a call from us</b> and we'll pick it up from there.</p>
+        <button class="btn btn-line" style="margin-top:24px" onclick="clearPay()">Back to options</button>
+      </div>`;
+    if(state._booked){
+      const o=PAY_OPTIONS.find(x=>x.key===state.payment)||{};
+      return `
       <div class="done-card">
         <div class="tick"><svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6"/></svg></div>
-        <h1 class="q" style="margin:0 auto">You're booked in</h1>
-        <p class="sub" style="margin:14px auto 0">We'll be in touch to confirm your installation${softFlag()?', once we\'ve checked your photo':''}. (Prototype - no payment taken.)</p>
+        <h1 class="q" style="margin:0 auto">${o.doneTitle||'Request received'}</h1>
+        <p class="sub" style="margin:14px auto 0">${o.doneSub||''}${softFlag()?" We'll confirm fit from your photo first.":''}</p>
       </div>`;
+    }
     return `
       <div class="eyebrow">Almost there</div>
       <h1 class="q">Book your installation</h1>
-      <p class="sub">${softFlag()?'We\'ll confirm fit from your photo before scheduling.':'Choose a time that suits - we\'ll confirm within one business day.'}</p>
+      <p class="sub">${softFlag()?"We'll confirm fit from your photo before scheduling.":"Tell us where to reach you and how you'd like to go ahead."}</p>
       <div class="form">
         <div class="field"><label>Full name</label><input type="text" placeholder="Jane Smith"></div>
         <div class="field"><label>Email</label><input type="email" placeholder="jane@email.com"></div>
         <div class="field"><label>Phone</label><input type="tel" placeholder="021 234 5678"></div>
         <div class="field"><label>Install area / suburb</label><input type="text" placeholder="e.g. Riccarton"></div>
-        <div class="field full"><label>Preferred timing</label>
-          <select><option>As soon as possible</option><option>Within 2 weeks</option><option>This month</option><option>Just planning for now</option></select></div>
         <div class="field full">
-          <label>Payment</label>
-          <select><option>Deposit to reserve - balance on install day</option><option>Pay in full now</option></select>
-          <div class="miniclar">Prototype only - payment isn't processed here.</div>
+          <label>How would you like to go ahead?</label>
+          <div class="choices">
+            ${PAY_OPTIONS.map(o=>`<button type="button" class="chip ${state.payment===o.key?'on':''}" onclick="setPayment('${o.key}')">${o.label}</button>`).join("")}
+          </div>
+          ${state.payment?`<div class="miniclar">${PAY_OPTIONS.find(o=>o.key===state.payment).note}</div>`:''}
         </div>
       </div>`;
   }
@@ -638,6 +662,23 @@ function toggleAddon(k){
 }
 function setFit(key,val){ state.fit[key]=val; render(); }
 function markPhoto(){ state.fit.photo=!state.fit.photo; render(); }
+function setPayment(k){ state.payment=k; render(); }
+function clearPay(){ state._payPending=false; render(); }
+
+/* =============================================================
+   PAYMENT GATEWAY HOOK
+   Called only when the customer picks "Pay now". Wire the provider's
+   checkout in here - it needs calcPrice() for the incl-GST total and the
+   build (comboKey(), state.tap, state.finish, state.filtration, addons).
+   Typically this redirects to the provider, e.g.
+     window.location = "/checkout?total=" + calcPrice() + "&build=" + comboKey();
+   Until that exists nothing is charged, and the screen says so rather than
+   showing a payment confirmation.
+   ============================================================= */
+function startPayment(){
+  state._payPending = true;
+  render();
+}
 function softFlag(){
   const c=state.fit.clearance, p=state.fit.power;
   const bad=v=>v==="No"||v==="Not sure";
@@ -655,15 +696,15 @@ function canProceed(){
     case 3: return true;
     case 4: return state.fit.clearance!==null && (!hasPoweredUnit()||state.fit.power!==null);
     case 5: return true;
-    case 6: return true;
+    case 6: return state.payment!==null;      // must choose how to proceed
     default:return true;
   }
 }
 function next(){
   if(state.step===6){ // book
-    state._booked=true; render(); 
-    document.getElementById("nextBtn").style.visibility="hidden";
-    document.getElementById("backBtn").style.visibility="hidden";
+    if(!canProceed()) return;
+    if(state.payment==="now"){ startPayment(); return; }  // render() hides the nav
+    state._booked=true; render();
     return;
   }
   if(!canProceed()) return;
@@ -678,12 +719,17 @@ function render(){
   const steps=document.getElementById("steps");
   steps.innerHTML=STEP_LABELS.map((_,i)=>`<div class="seg ${i<state.step?'done':''} ${i===state.step?'active':''}"><i></i></div>`).join("");
   document.getElementById("stepnum").textContent=`${STEP_LABELS[state.step]} · ${state.step+1} of ${STEP_LABELS.length}`;
-  // footer buttons
-  document.getElementById("backBtn").style.visibility= state.step===0?"hidden":"visible";
+  // footer buttons - hidden once the journey has ended on a result screen
+  const done = state._booked || state._payPending;
+  document.getElementById("backBtn").style.visibility= (state.step===0||done)?"hidden":"visible";
   const nb=document.getElementById("nextBtn");
+  nb.style.visibility = done?"hidden":"visible";
   nb.disabled=!canProceed();
   if(state.step===5){ nb.textContent="Book installation"; }
-  else if(state.step===6){ nb.textContent="Confirm booking"; }
+  else if(state.step===6){
+    const o=PAY_OPTIONS.find(x=>x.key===state.payment);
+    nb.textContent = o ? o.label : "Choose an option";
+  }
   else nb.textContent="Continue";
   if(state.step===1) bindRail();
   paintPrice(false);
