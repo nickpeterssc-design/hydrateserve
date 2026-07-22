@@ -151,7 +151,6 @@ h1.q{font-family:var(--display);font-weight:500;font-size:clamp(28px,4.4vw,42px)
 .line .l{color:var(--ink-soft)}
 .line .r{font-variant-numeric:tabular-nums;font-weight:500}
 .line .r.inc{color:var(--water);font-weight:600}
-.recurring{padding:14px 28px;background:#fafbfa;border-top:1px solid var(--line);font-size:13.5px;color:var(--ink-soft)}
 .clarifier{padding:18px 28px;background:var(--water-wash);font-size:13.5px;color:var(--water-deep);line-height:1.5;border-top:1px solid var(--line)}
 .clarifier b{color:var(--water-deep)}
 /* ---------- nav / price bar ---------- */
@@ -286,9 +285,10 @@ const FILTRATION = {
 // from BASE rather than hardcoding a flat delta.
 function roDelta(){ const b=BASE[comboKey()]; return b ? b.ro - b.ufx3 : 0; }
 
+// Retail incl-GST. $190 landed / (1 - 0.60 margin) = $475 ex-GST, +15% GST.
+// Margin and GST rate come from the workbook's Settings tab.
 const ADDONS = {
-  warranty:{label:"Extended warranty (+1 year)", price:190, recurring:false},
-  subscription:{label:"Filter subscription (annual)", price:120, recurring:true}
+  warranty:{label:"Extended warranty (+1 year)", price:546}
 };
 const CO2_NOTE = "CO₂ bottle + regulator included";
 
@@ -324,11 +324,6 @@ function calcPrice(){
   // tap style + finish carry no price difference — every style is the same value
   if(state.addons.has("warranty")) p += ADDONS.warranty.price;
   return p; // one-off incl-GST
-}
-function recurringTotal(){
-  let r=0;
-  if(state.addons.has("subscription")) r+=ADDONS.subscription.price;
-  return r;
 }
 function money(n){ return "$"+n.toLocaleString("en-NZ"); }
 
@@ -431,7 +426,6 @@ const screens = [
   // 3 · ADD-ONS (conditional content)
   ()=>{
     const sparkling=state.functions.has("sparkling");
-    const showSub=state.filtration==="ufx3";
     let cards="";
     if(sparkling){
       cards+=`<div class="opt locked sel" style="cursor:default">
@@ -445,17 +439,10 @@ const screens = [
       <div class="name" style="font-size:18px">${ADDONS.warranty.label}</div>
       <div class="desc">Adds a third year of cover on your system. Taps carry 5 years as standard.</div>
       <div class="price-badge">+${money(ADDONS.warranty.price)}</div></button>`;
-    if(showSub){
-      cards+=`<button class="opt ${state.addons.has('subscription')?'sel':''}" onclick="toggleAddon('subscription')">
-        <div class="check"><svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6"/></svg></div>
-        <div class="name" style="font-size:18px">${ADDONS.subscription.label}</div>
-        <div class="desc">Replacement UFX3 filter shipped each year. Cancel anytime.</div>
-        <div class="price-badge">${money(ADDONS.subscription.price)}/yr</div></button>`;
-    }
     return `
       <div class="eyebrow">Build your tap</div>
       <h1 class="q">Anything to add?</h1>
-      <p class="sub">All optional. ${sparkling?'Your CO₂ kit is already included.':'Keep it simple, or add cover and convenience.'}</p>
+      <p class="sub">All optional. ${sparkling?'Your CO₂ kit is already included.':'Keep it simple, or add extra cover.'}</p>
       <div class="grid g2">${cards}</div>`;
   },
 
@@ -501,7 +488,6 @@ const screens = [
     const oneoff=calcPrice();
     const exGst=Math.round(oneoff/(1+GST_RATE));
     const gst=oneoff-exGst;
-    const rec=recurringTotal();
     const finishLabel=state.finish?FINISH_META[state.finish].label:"—";
     return `
       <div class="eyebrow">Your build</div>
@@ -527,7 +513,6 @@ const screens = [
           <div class="line"><span class="l">Standard installation</span><span class="r">included</span></div>
           <div class="line"><span class="l">Total incl. GST</span><span class="r inc">${money(oneoff)}</span></div>
         </div>
-        ${rec?`<div class="recurring">Then ${money(rec)}/yr — filter subscription (cancel anytime).</div>`:""}
         <div class="clarifier">Your HydrateServe tap <b>replaces your existing kitchen mixer</b>: standard hot and cold, plus filtered water on demand. The mixer flow stays on normal mains; the dedicated filtered dispense is filtered.</div>
       </div>`;
   },
@@ -636,7 +621,6 @@ function bindRail(){
 }
 function pickFilter(k){
   state.filtration=k;
-  if(k==="ro") state.addons.delete("subscription"); // sub only with UFX3
   render(); paintPrice(true);
 }
 function toggleAddon(k){
