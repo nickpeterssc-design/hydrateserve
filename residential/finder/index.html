@@ -44,7 +44,7 @@ body{
 .topbar{position:sticky;top:0;z-index:20;background:rgba(251,252,251,.86);
   backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
 .topbar-in{max-width:960px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:18px}
-.brand{font-family:var(--display);font-weight:400;font-size:17px;letter-spacing:.28em;text-transform:uppercase;white-space:nowrap}
+.brand{font-family:var(--display);font-weight:400;font-size:17px;letter-spacing:.28em;text-transform:uppercase;white-space:nowrap;color:var(--ink);text-decoration:none}
 .brand span{color:var(--sky)}
 .steps{display:flex;gap:6px;flex:1;margin:0 4px}
 .steps .seg{flex:1;height:3px;border-radius:3px;background:var(--line);overflow:hidden}
@@ -200,7 +200,7 @@ h1.q{font-family:var(--display);font-weight:400;font-size:clamp(28px,4.4vw,44px)
 
 <div class="topbar">
   <div class="topbar-in">
-    <div class="brand">Hydrate<span>Serve</span></div>
+    <a class="brand" href="/residential" aria-label="HydrateServe - back to residential site">Hydrate<span>Serve</span></a>
     <div class="steps" id="steps"></div>
     <div class="stepnum" id="stepnum">Step 1 of 6</div>
   </div>

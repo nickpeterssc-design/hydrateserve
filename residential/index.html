@@ -181,6 +181,13 @@ section{padding:clamp(84px,12vh,150px) var(--pad)}
   100%{transform:translateY(-115vh) translateX(22px);opacity:0}
 }
 
+/* ---------- build CTA (glass-blue band, the primary action) ---------- */
+.build-band{background:var(--glass);color:#fff;text-align:center}
+.build-band .eyebrow{color:rgba(255,255,255,.7);display:block;margin-bottom:20px}
+.build-band h2{max-width:22ch;margin:0 auto}
+.build-band p{margin:22px auto 0;max-width:46ch;color:rgba(255,255,255,.85);font-size:clamp(16px,1.6vw,20px);font-weight:300}
+.build-band .btn{margin-top:38px}
+
 /* ---------- sustainability ---------- */
 .sustain{background:var(--mist)}
 .zero-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-top:clamp(48px,6vh,72px)}
@@ -371,6 +378,14 @@ footer .brand{font-size:14px;color:var(--ink)}
       </ul>
     </div>
   </div>
+</section>
+
+<!-- ================= BUILD CTA ================= -->
+<section class="build-band reveal">
+  <span class="eyebrow">Build &amp; price online</span>
+  <h2 class="display">Configure your system. See your price.</h2>
+  <p>Choose your functions, pick a style, and get an instant price - shaped to fit your kitchen.</p>
+  <a class="btn btn-solid" href="/residential/finder">Build your tap</a>
 </section>
 
 <!-- ================= SUSTAINABILITY ================= -->
