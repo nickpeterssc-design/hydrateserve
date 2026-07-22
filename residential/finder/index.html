@@ -3,17 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HydrateServe — Build your tap</title>
+<title>HydrateServe - Build your tap</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Figtree:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 /* ============================================================
-   DESIGN TOKENS  —  retheme the whole configurator from here
+   DESIGN TOKENS  -  retheme the whole configurator from here
    Swap these to match the HydrateServe site design system.
    ============================================================ */
 :root{
-  /* Matched to the main site's design system — keep these in step with
+  /* Matched to the main site's design system - keep these in step with
      index.html and residential/index.html if the site palette changes. */
   --ink:#0B1E26;          /* deep marine ink */
   --ink-soft:#22414D;     /* secondary text */
@@ -21,10 +21,10 @@
   --steel:#7C929C;        /* muted steel for labels */
   --paper:#F3F7F8;        /* glacial pale page bg */
   --card:#FFFFFF;         /* card bg */
-  --water:#0F5468;        /* primary accent — deep glass blue */
+  --water:#0F5468;        /* primary accent - deep glass blue */
   --water-deep:#0B3A47;
   --water-wash:#E9F0F2;   /* accent wash for selected states */
-  --sky:#5BABD8;          /* light brand blue — logo accent */
+  --sky:#5BABD8;          /* light brand blue - logo accent */
   --radius:2px;
   --radius-lg:2px;
   --shadow:none;
@@ -211,7 +211,7 @@ h1.q{font-family:var(--display);font-weight:400;font-size:clamp(28px,4.4vw,44px)
   <div class="footer-in">
     <div class="runprice" id="runprice">
       <span class="lbl">Your build</span>
-      <span class="val" id="runval">—</span>
+      <span class="val" id="runval">-</span>
     </div>
     <div class="spacer"></div>
     <button class="btn btn-ghost" id="backBtn" onclick="back()" style="visibility:hidden">Back</button>
@@ -221,31 +221,36 @@ h1.q{font-family:var(--display);font-weight:400;font-size:clamp(28px,4.4vw,44px)
 
 <script>
 /* =============================================================
-   PRICING CONFIG  —  plug your workbook numbers in here.
+   PRICING CONFIG  -  plug your workbook numbers in here.
    Prices are RETAIL incl-GST placeholders. Replace with the
    six package retails + tap/finish/upgrade deltas from your sheet.
    ============================================================= */
 const GST_RATE = 0.15;
 
-// Retail incl-GST by resolved function combo (unit + filtration + install).
+// Retail incl-GST by resolved function combo, EXCLUDING the tap.
 // Keys are the resolved function set (ambient always implied).
-// Source: HydrateServe_Residential_Pricing_2.xlsx -> "Configurator Feed" tab.
-// Both filtration prices are held per combo so they match the workbook exactly
-// rather than drifting by a dollar off a flat RO delta.
+// Source: HydrateServe_Residential_Pricing_2.xlsx -> "Configurator Feed" tab
+// (50% margin), less the tap that workbook bundles into every package:
+// $235 landed / (1 - 0.50) = $470 ex-GST, +15% GST = $540.50.
+// The tap is added back as TAP_PRICE once the customer picks one, so the
+// running total on the first screen is the system only.
 const BASE = {
-  "ambient"                       : {ufx3:2271, ro:2832},  // filter only, no powered unit
-  "chilled"                       : {ufx3:3853, ro:4413},  // + chiller
-  "chilled+sparkling"             : {ufx3:5664, ro:6224},  // + chiller/sparkling unit + CO2
-  "boiling"                       : {ufx3:4284, ro:4844},  // + boiler
-  "chilled+boiling"               : {ufx3:6728, ro:7288},  // + chiller + boiler
-  "chilled+sparkling+boiling"     : {ufx3:7676, ro:8237}   // full system
+  "ambient"                       : {ufx3:1277, ro:1726},  // filter only, no powered unit
+  "chilled"                       : {ufx3:2542, ro:2991},  // + chiller
+  "chilled+sparkling"             : {ufx3:3991, ro:4440},  // + chiller/sparkling unit + CO2
+  "boiling"                       : {ufx3:2887, ro:3336},  // + boiler
+  "chilled+boiling"               : {ufx3:4842, ro:5291},  // + chiller + boiler
+  "chilled+sparkling+boiling"     : {ufx3:5601, ro:6050}   // full system
 };
+
+// Every tap is the same price, whatever the style or finish.
+const TAP_PRICE = 379;
 
 /* -------------------------------------------------------------
    TAP STYLES
    Style picker, not a product picker. The customer chooses a
    silhouette + finish; the matching tap is sourced afterwards.
-   Every style carries the same value — no price deltas.
+   Every style carries the same value - no price deltas.
 
    `img`      = image filename stem
    `finishes` = [{key: canonical swatch, file: filename suffix}]
@@ -283,16 +288,14 @@ function preloadTaps(){
 
 const FILTRATION = {
   ufx3:{label:"UFX3 Standard", desc:"3-stage filtration, bundled as standard."},
-  ro:{label:"RO Upgrade", desc:"Reverse osmosis — removes fluoride and nitrate."}
+  ro:{label:"RO Upgrade", desc:"Reverse osmosis - removes fluoride and nitrate."}
 };
 // The RO uplift is ~$561 but varies by a dollar between combos, so read it
 // from BASE rather than hardcoding a flat delta.
 function roDelta(){ const b=BASE[comboKey()]; return b ? b.ro - b.ufx3 : 0; }
 
-// Retail incl-GST. $190 landed / (1 - 0.60 margin) = $475 ex-GST, +15% GST.
-// Margin and GST rate come from the workbook's Settings tab.
 const ADDONS = {
-  warranty:{label:"Extended warranty (+1 year)", price:546}
+  warranty:{label:"Extended warranty (+1 year)", price:249}
 };
 const CO2_NOTE = "CO₂ bottle + regulator included";
 
@@ -325,7 +328,9 @@ function hasPoweredUnit(){ return state.functions.size>0; } // any function = po
 function calcPrice(){
   const b = BASE[comboKey()];
   let p = b ? b[state.filtration] : 0;   // filtration choice is priced into BASE
-  // tap style + finish carry no price difference — every style is the same value
+  // The tap only counts once one is chosen, so screen 1 shows the system alone.
+  // Style and finish make no difference - every tap is the same price.
+  if(state.tap) p += TAP_PRICE;
   if(state.addons.has("warranty")) p += ADDONS.warranty.price;
   return p; // one-off incl-GST
 }
@@ -334,7 +339,7 @@ function money(n){ return "$"+n.toLocaleString("en-NZ"); }
 function paintPrice(flash){
   const el=document.getElementById("runval");
   const rp=document.getElementById("runprice");
-  if(state.functions.size===0 && !state.tap){ el.textContent="—"; return; }
+  if(state.functions.size===0 && !state.tap){ el.textContent="-"; return; }
   el.textContent=money(calcPrice());
   if(flash){ rp.classList.remove("priceflash"); void rp.offsetWidth; rp.classList.add("priceflash"); }
 }
@@ -356,7 +361,7 @@ const screens = [
   ()=>`
     <div class="eyebrow">Build your tap</div>
     <h1 class="q">What do you want your tap to do?</h1>
-    <p class="sub">Every HydrateServe tap pours <b>filtered ambient water</b> as standard — choose what else you'd like on tap. Pick any combination.</p>
+    <p class="sub">Every HydrateServe tap pours <b>filtered ambient water</b> as standard - choose what else you'd like on tap. Pick any combination.</p>
     <div class="grid g3" id="fnGrid">
       ${["chilled","sparkling","boiling"].map(k=>{
         const m=FN_META[k], sel=state.functions.has(k);
@@ -375,14 +380,14 @@ const screens = [
     return `
     <div class="eyebrow">Build your tap</div>
     <h1 class="q">Choose your style</h1>
-    <p class="sub">Every style delivers your build, and they're all <b>the same price</b> — so pick the one you like. Choose a shape, then a finish.</p>
+    <p class="sub">Every style delivers your build, and they're all <b>the same price</b> - ${money(TAP_PRICE)}, whichever you pick. Choose a shape, then a finish.</p>
 
     <div class="taprail" id="tapRail" role="radiogroup" aria-label="Tap style">
       ${TAPS.map(t=>{
         const on = state.tap && state.tap.id===t.id;
         const fkey = on && state.finish ? state.finish : t.finishes[0].key;
         return `<div class="opt tap ${on?'sel':''}" id="card-${t.id}" role="radio" tabindex="0"
-             aria-checked="${on}" aria-label="${t.name} — ${t.desc}"
+             aria-checked="${on}" aria-label="${t.name} - ${t.desc}"
              onclick="pickTap('${t.id}')"
              onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();pickTap('${t.id}')}">
           <div class="check"><svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6"/></svg></div>
@@ -435,7 +440,7 @@ const screens = [
       cards+=`<div class="opt locked sel" style="cursor:default">
         <div class="check"><svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6"/></svg></div>
         <div class="name" style="font-size:18px">Sparkling kit</div>
-        <div class="desc">${CO2_NOTE} — added automatically with your sparkling unit.</div>
+        <div class="desc">${CO2_NOTE} - added automatically with your sparkling unit.</div>
         <div class="incl">Included</div></div>`;
     }
     cards+=`<button class="opt ${state.addons.has('warranty')?'sel':''}" onclick="toggleAddon('warranty')">
@@ -455,7 +460,7 @@ const screens = [
     const power=hasPoweredUnit();
     return `
       <div class="eyebrow">Build your tap</div>
-      <h1 class="q">Last thing — let's make sure it fits</h1>
+      <h1 class="q">Last thing - let's make sure it fits</h1>
       <p class="sub">Your system installs in the cabinet under your sink. A quick check now saves a wasted visit later.</p>
 
       <div class="fitq">
@@ -474,10 +479,10 @@ const screens = [
         </div>
       </div>`:""}
 
-      <div class="uploadbox" onclick="markPhoto()">${state.fit.photo?'✓ Photo added — thanks, that helps us confirm fit.':'📷 Snap a photo under your sink (optional — helps us confirm)'}</div>
+      <div class="uploadbox" onclick="markPhoto()">${state.fit.photo?'✓ Photo added - thanks, that helps us confirm fit.':'📷 Snap a photo under your sink (optional - helps us confirm)'}</div>
 
       <div class="softnote ${softFlag()?'show':''}" id="softnote">
-        No problem — we'll confirm fit from your photo before we schedule anything. You can keep going and get your price.
+        No problem - we'll confirm fit from your photo before we schedule anything. You can keep going and get your price.
       </div>`;
   },
 
@@ -490,9 +495,9 @@ const screens = [
     if(state.functions.has("boiling"))fnLabels.push("Boiling");
     fnLabels.push("Ambient");
     const oneoff=calcPrice();
-    const exGst=Math.round(oneoff/(1+GST_RATE));
-    const gst=oneoff-exGst;
-    const finishLabel=state.finish?FINISH_META[state.finish].label:"—";
+    const sysBase=BASE[combo];
+    const systemPrice=sysBase?sysBase[state.filtration]:0;
+    const finishLabel=state.finish?FINISH_META[state.finish].label:"-";
     return `
       <div class="eyebrow">Your build</div>
       <h1 class="q">Here's your HydrateServe tap</h1>
@@ -508,12 +513,12 @@ const screens = [
           </div>
         </div>
         <div class="lines">
-          <div class="line"><span class="l">${state.tap?state.tap.name:'Tap'} (${finishLabel})</span><span class="r">included</span></div>
-          <div class="line"><span class="l">Under-sink unit — ${combo.replace(/\+/g,' + ')}</span><span class="r">included</span></div>
+          <div class="line"><span class="l">Under-sink system - ${combo.replace(/\+/g,' + ')}</span><span class="r">${money(systemPrice)}</span></div>
           <div class="line"><span class="l">${FILTRATION[state.filtration].label}</span><span class="r">included</span></div>
+          <div class="line"><span class="l">${state.tap?state.tap.name:'Tap'} (${finishLabel})</span><span class="r">${money(TAP_PRICE)}</span></div>
           ${state.functions.has("sparkling")?`<div class="line"><span class="l">CO₂ bottle + regulator</span><span class="r">included</span></div>`:""}
           ${state.addons.has("warranty")?`<div class="line"><span class="l">Extended warranty (+1 year)</span><span class="r">${money(ADDONS.warranty.price)}</span></div>`:""}
-          <div class="line"><span class="l">Warranty — 5&nbsp;yr tap · 2&nbsp;yr system${state.addons.has("warranty")?' + 1&nbsp;yr':''}</span><span class="r">included</span></div>
+          <div class="line"><span class="l">Warranty - 5&nbsp;yr tap · 2&nbsp;yr system${state.addons.has("warranty")?' + 1&nbsp;yr':''}</span><span class="r">included</span></div>
           <div class="line"><span class="l">Standard installation</span><span class="r">included</span></div>
           <div class="line"><span class="l">Total incl. GST</span><span class="r inc">${money(oneoff)}</span></div>
         </div>
@@ -527,12 +532,12 @@ const screens = [
       <div class="done-card">
         <div class="tick"><svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6"/></svg></div>
         <h1 class="q" style="margin:0 auto">You're booked in</h1>
-        <p class="sub" style="margin:14px auto 0">We'll be in touch to confirm your installation${softFlag()?', once we\'ve checked your photo':''}. (Prototype — no payment taken.)</p>
+        <p class="sub" style="margin:14px auto 0">We'll be in touch to confirm your installation${softFlag()?', once we\'ve checked your photo':''}. (Prototype - no payment taken.)</p>
       </div>`;
     return `
       <div class="eyebrow">Almost there</div>
       <h1 class="q">Book your installation</h1>
-      <p class="sub">${softFlag()?'We\'ll confirm fit from your photo before scheduling.':'Choose a time that suits — we\'ll confirm within one business day.'}</p>
+      <p class="sub">${softFlag()?'We\'ll confirm fit from your photo before scheduling.':'Choose a time that suits - we\'ll confirm within one business day.'}</p>
       <div class="form">
         <div class="field"><label>Full name</label><input type="text" placeholder="Jane Smith"></div>
         <div class="field"><label>Email</label><input type="email" placeholder="jane@email.com"></div>
@@ -542,8 +547,8 @@ const screens = [
           <select><option>As soon as possible</option><option>Within 2 weeks</option><option>This month</option><option>Just planning for now</option></select></div>
         <div class="field full">
           <label>Payment</label>
-          <select><option>Deposit to reserve — balance on install day</option><option>Pay in full now</option></select>
-          <div class="miniclar">Prototype only — payment isn't processed here.</div>
+          <select><option>Deposit to reserve - balance on install day</option><option>Pay in full now</option></select>
+          <div class="miniclar">Prototype only - payment isn't processed here.</div>
         </div>
       </div>`;
   }
