@@ -304,6 +304,11 @@ const CO2_NOTE = "CO₂ bottle + regulator included";
 // anything else, so no enquiry is lost even when the gateway is not live.
 const FORM_ENDPOINT = "https://formspree.io/f/xykrdyoj";
 
+// Server-side checkout (worker/checkout.js). It recomputes the price from the
+// build and hands back a Shopify checkout URL. Until the Worker is deployed
+// this 404s, and startPayment() falls back to the "not switched on" screen.
+const CHECKOUT_ENDPOINT = "/api/checkout";
+
 // How the customer wants to proceed from the booking screen.
 // "now" is the only route that touches the payment gateway - see startPayment().
 const PAY_OPTIONS = [
@@ -740,9 +745,36 @@ async function submitBooking(){
    Until that exists nothing is charged, and the screen says so rather than
    showing a payment confirmation.
    ============================================================= */
-function startPayment(){
-  state._payPending = true;
-  render();
+async function startPayment(){
+  state._sending=true; state._error=null; render();
+  try{
+    const res=await fetch(CHECKOUT_ENDPOINT,{
+      method:"POST",
+      headers:{"Content-Type":"application/json",Accept:"application/json"},
+      body:JSON.stringify({
+        functions:[...state.functions],
+        filtration:state.filtration,
+        warranty:state.addons.has("warranty"),
+        tap:state.tap?state.tap.name:"",
+        finish:state.finish?FINISH_META[state.finish].label:"",
+        email:state.contact.email,
+        fit_clearance:state.fit.clearance||"",
+        fit_power:hasPoweredUnit()?(state.fit.power||""):""
+      })
+    });
+    if(!res.ok) throw new Error("HTTP "+res.status);
+    const data=await res.json();
+    if(!data.url) throw new Error("no checkout url");
+    // The Worker prices the build itself. If its total disagrees with what we
+    // showed, stop - never send someone to a checkout at a different number.
+    if(typeof data.total==="number" && data.total!==calcPrice()) throw new Error("price mismatch");
+    window.location.href=data.url;
+    return;
+  }catch(err){
+    state._sending=false;
+    state._payPending=true;   // shows "card payment isn't switched on yet"
+    render();
+  }
 }
 function softFlag(){
   const c=state.fit.clearance, p=state.fit.power;
