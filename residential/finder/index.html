@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HydrateServe — Build your tap</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   DESIGN TOKENS  —  retheme the whole configurator from here
+   Swap these to match the HydrateServe site design system.
+   ============================================================ */
+:root{
+  --ink:#10201f;          /* near-black, cool green-black */
+  --ink-soft:#5b6b69;     /* secondary text */
+  --line:#e4e8e6;         /* hairlines / borders */
+  --paper:#fbfcfb;        /* page bg */
+  --card:#ffffff;         /* card bg */
+  --water:#0e7c86;        /* primary accent — deep water teal */
+  --water-deep:#0a5a62;
+  --water-wash:#e8f4f4;   /* accent wash for selected states */
+  --gold:#b08243;
+  --radius:14px;
+  --radius-lg:22px;
+  --shadow:0 1px 2px rgba(16,32,31,.04),0 8px 30px rgba(16,32,31,.06);
+  --shadow-lift:0 2px 6px rgba(16,32,31,.08),0 18px 50px rgba(16,32,31,.12);
+  --ease:cubic-bezier(.22,.61,.36,1);
+  --display:'Fraunces',Georgia,serif;
+  --body:'Inter',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:var(--body);color:var(--ink);background:var(--paper);
+  line-height:1.5;-webkit-font-smoothing:antialiased;
+  min-height:100vh;padding-bottom:96px;
+}
+/* ---------- top progress ---------- */
+.topbar{position:sticky;top:0;z-index:20;background:rgba(251,252,251,.86);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.topbar-in{max-width:960px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:18px}
+.brand{font-family:var(--display);font-weight:600;font-size:18px;letter-spacing:-.01em;white-space:nowrap}
+.brand span{color:var(--water)}
+.steps{display:flex;gap:6px;flex:1;margin:0 4px}
+.steps .seg{flex:1;height:3px;border-radius:3px;background:var(--line);overflow:hidden}
+.steps .seg i{display:block;height:100%;width:0;background:var(--water);transition:width .5s var(--ease)}
+.steps .seg.done i{width:100%}
+.steps .seg.active i{width:50%}
+.stepnum{font-size:12.5px;color:var(--ink-soft);font-variant-numeric:tabular-nums;white-space:nowrap}
+/* ---------- stage ---------- */
+.stage{max-width:960px;margin:0 auto;padding:40px 24px 20px}
+.screen{display:none;animation:rise .55s var(--ease) both}
+.screen.in{display:block}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.screen.in,.priceflash{animation:none!important}}
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--water);margin-bottom:14px}
+h1.q{font-family:var(--display);font-weight:500;font-size:clamp(28px,4.4vw,42px);line-height:1.08;letter-spacing:-.02em;max-width:16ch}
+.sub{color:var(--ink-soft);font-size:16px;margin-top:14px;max-width:52ch}
+.sub b{color:var(--ink);font-weight:600}
+/* ---------- option cards ---------- */
+.grid{display:grid;gap:16px;margin-top:34px}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g2{grid-template-columns:repeat(2,1fr)}
+.gtaps{grid-template-columns:repeat(3,1fr)}
+@media(max-width:720px){.g3,.g2,.gtaps{grid-template-columns:1fr 1fr}}
+@media(max-width:460px){.g3,.g2,.gtaps{grid-template-columns:1fr}}
+.opt{position:relative;background:var(--card);border:1.5px solid var(--line);border-radius:var(--radius-lg);
+  padding:24px;cursor:pointer;transition:transform .25s var(--ease),border-color .2s,box-shadow .25s;
+  box-shadow:var(--shadow);text-align:left;display:flex;flex-direction:column;gap:8px;min-height:150px}
+.opt:hover{transform:translateY(-3px);box-shadow:var(--shadow-lift);border-color:#cfd8d6}
+.opt:focus-visible{outline:2.5px solid var(--water);outline-offset:3px}
+.opt.sel{border-color:var(--water);background:var(--water-wash);box-shadow:0 0 0 1px var(--water),var(--shadow-lift)}
+.opt.locked{cursor:default;opacity:.9}
+.opt .ico{width:40px;height:40px;margin-bottom:4px}
+.opt .name{font-family:var(--display);font-size:21px;font-weight:500;letter-spacing:-.01em}
+.opt .desc{font-size:13.5px;color:var(--ink-soft);line-height:1.45}
+.opt .price-badge{font-size:13px;font-weight:600;color:var(--water-deep);margin-top:auto;font-variant-numeric:tabular-nums}
+.opt .incl{font-size:12px;font-weight:600;color:var(--water);letter-spacing:.02em;margin-top:auto}
+.check{position:absolute;top:16px;right:16px;width:24px;height:24px;border-radius:50%;border:1.5px solid var(--line);
+  display:grid;place-items:center;transition:.2s;background:#fff}
+.opt.sel .check{background:var(--water);border-color:var(--water)}
+.check svg{width:13px;height:13px;stroke:#fff;stroke-width:3;opacity:0;transition:.2s}
+.opt.sel .check svg{opacity:1}
+.tag{display:inline-block;font-size:11px;font-weight:600;color:var(--water-deep);background:var(--water-wash);
+  border-radius:999px;padding:3px 9px;letter-spacing:.02em}
+/* ---------- tap style carousel ---------- */
+.taprail{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:34px}
+.taprail>.opt{padding:18px;min-height:0;gap:4px}
+@media(max-width:900px){.taprail{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:620px){
+  .taprail{display:flex;grid-template-columns:none;gap:14px;overflow-x:auto;
+    scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;
+    margin:34px -22px 0;padding:3px 22px 6px;scrollbar-width:none}
+  .taprail::-webkit-scrollbar{display:none}
+  .taprail>.opt{flex:0 0 78%;scroll-snap-align:center}
+  .taprail>.opt:hover{transform:none}     /* no hover-lift on touch */
+}
+.raildots{display:none;justify-content:center;gap:7px;margin-top:14px}
+.raildots i{width:6px;height:6px;border-radius:50%;background:var(--line);transition:.25s var(--ease)}
+.raildots i.on{background:var(--water);width:18px;border-radius:3px}
+@media(max-width:620px){.raildots{display:flex}}
+.footnote{margin-top:22px;font-size:12.5px;color:var(--ink-soft)}
+/* tap card */
+.tap .shot{position:relative;aspect-ratio:4/5;border-radius:12px;background:
+  radial-gradient(120% 90% at 50% 15%,#f4f7f6 0%,#eef2f1 55%,#e7edeb 100%);
+  margin-bottom:8px;overflow:hidden}
+.tap .shot .lay{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;
+  mix-blend-mode:multiply;opacity:0;transition:opacity .18s linear}
+.tap .shot .lay.on{opacity:1}
+.tap .desc{margin-top:-2px}
+/* finish swatches */
+.finishes{display:flex;gap:9px;margin-top:12px;flex-wrap:wrap}
+.sw{width:28px;height:28px;padding:0;border-radius:50%;border:2px solid #fff;
+  box-shadow:0 0 0 1.5px var(--line);cursor:pointer;transition:transform .18s var(--ease),box-shadow .18s}
+.sw:hover{transform:scale(1.08)}
+.sw:focus-visible{outline:2.5px solid var(--water);outline-offset:3px}
+.sw.on{box-shadow:0 0 0 2px var(--water),0 0 0 5px var(--water-wash)}
+@media(prefers-reduced-motion:reduce){
+  .tap .shot .lay{transition:none}
+  .sw:hover,.opt:hover{transform:none}
+}
+/* ---------- fit check ---------- */
+.fitq{background:var(--card);border:1.5px solid var(--line);border-radius:var(--radius);padding:22px;margin-top:16px;box-shadow:var(--shadow)}
+.fitq h3{font-family:var(--display);font-weight:500;font-size:19px;margin-bottom:4px}
+.fitq p.hint{font-size:13.5px;color:var(--ink-soft);margin-bottom:14px}
+.choices{display:flex;gap:10px;flex-wrap:wrap}
+.chip{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:9px 18px;font-size:14px;font-weight:500;
+  cursor:pointer;transition:.18s;font-family:var(--body);color:var(--ink)}
+.chip:hover{border-color:#cfd8d6}
+.chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.softnote{margin-top:14px;font-size:13.5px;color:var(--water-deep);background:var(--water-wash);
+  border-radius:10px;padding:12px 14px;display:none}
+.softnote.show{display:block;animation:rise .4s var(--ease) both}
+.uploadbox{margin-top:16px;border:1.5px dashed var(--line);border-radius:12px;padding:20px;text-align:center;
+  color:var(--ink-soft);font-size:14px;cursor:pointer;transition:.2s}
+.uploadbox:hover{border-color:var(--water);color:var(--water-deep);background:var(--water-wash)}
+/* ---------- summary ---------- */
+.summary{background:var(--card);border:1.5px solid var(--line);border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-lift);overflow:hidden;margin-top:30px}
+.sum-head{padding:26px 28px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap}
+.sum-head .build{font-family:var(--display);font-size:24px;font-weight:500;letter-spacing:-.01em}
+.sum-head .fnrow{margin-top:8px;display:flex;gap:6px;flex-wrap:wrap}
+.sum-price{text-align:right}
+.sum-price .big{font-family:var(--display);font-size:38px;font-weight:600;letter-spacing:-.02em;line-height:1}
+.sum-price .lil{font-size:12.5px;color:var(--ink-soft);margin-top:5px}
+.lines{padding:20px 28px}
+.line{display:flex;justify-content:space-between;padding:9px 0;font-size:14.5px;border-bottom:1px solid var(--line)}
+.line:last-child{border-bottom:0}
+.line .l{color:var(--ink-soft)}
+.line .r{font-variant-numeric:tabular-nums;font-weight:500}
+.line .r.inc{color:var(--water);font-weight:600}
+.recurring{padding:14px 28px;background:#fafbfa;border-top:1px solid var(--line);font-size:13.5px;color:var(--ink-soft)}
+.clarifier{padding:18px 28px;background:var(--water-wash);font-size:13.5px;color:var(--water-deep);line-height:1.5;border-top:1px solid var(--line)}
+.clarifier b{color:var(--water-deep)}
+/* ---------- nav / price bar ---------- */
+.footer{position:fixed;bottom:0;left:0;right:0;z-index:20;background:rgba(255,255,255,.9);
+  backdrop-filter:blur(12px);border-top:1px solid var(--line)}
+.footer-in{max-width:960px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:16px}
+.runprice{display:flex;flex-direction:column;line-height:1.1}
+.runprice .lbl{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);font-weight:600}
+.runprice .val{font-family:var(--display);font-size:24px;font-weight:600;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.runprice.priceflash .val{animation:flash .5s var(--ease)}
+@keyframes flash{0%{color:var(--water)}100%{color:var(--ink)}}
+.spacer{flex:1}
+.btn{font-family:var(--body);font-weight:600;font-size:15px;border-radius:999px;padding:13px 26px;cursor:pointer;
+  border:1.5px solid transparent;transition:.2s;white-space:nowrap}
+.btn-ghost{background:transparent;color:var(--ink-soft);border-color:transparent}
+.btn-ghost:hover{color:var(--ink)}
+.btn-line{background:#fff;color:var(--ink);border-color:var(--line)}
+.btn-line:hover{border-color:var(--ink)}
+.btn-primary{background:var(--water);color:#fff}
+.btn-primary:hover{background:var(--water-deep)}
+.btn-primary:disabled{background:#cdd6d5;cursor:not-allowed}
+.btn:focus-visible{outline:2.5px solid var(--water);outline-offset:2px}
+@media(max-width:520px){
+  .runprice .val{font-size:20px}.btn{padding:12px 18px;font-size:14px}
+  .footer-in{gap:10px;padding:12px 16px}.stage{padding:28px 16px 20px}
+  .brand{font-size:15px}.stepnum{display:none}
+}
+/* book form */
+.form{margin-top:28px;display:grid;gap:14px;grid-template-columns:1fr 1fr}
+.form .full{grid-column:1/-1}
+.field label{display:block;font-size:13px;font-weight:600;color:var(--ink-soft);margin-bottom:6px}
+.field input,.field select{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:10px;font-family:var(--body);font-size:15px;background:#fff}
+.field input:focus,.field select:focus{outline:none;border-color:var(--water)}
+@media(max-width:520px){.form{grid-template-columns:1fr}}
+.miniclar{font-size:12.5px;color:var(--ink-soft);margin-top:6px}
+.done-card{text-align:center;padding:50px 20px}
+.done-card .tick{width:64px;height:64px;border-radius:50%;background:var(--water-wash);display:grid;place-items:center;margin:0 auto 20px}
+.done-card .tick svg{width:30px;height:30px;stroke:var(--water);stroke-width:2.5;fill:none}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-in">
+    <div class="brand">Hydrate<span>Serve</span></div>
+    <div class="steps" id="steps"></div>
+    <div class="stepnum" id="stepnum">Step 1 of 6</div>
+  </div>
+</div>
+
+<div class="stage" id="stage"></div>
+
+<div class="footer">
+  <div class="footer-in">
+    <div class="runprice" id="runprice">
+      <span class="lbl">Your build</span>
+      <span class="val" id="runval">—</span>
+    </div>
+    <div class="spacer"></div>
+    <button class="btn btn-ghost" id="backBtn" onclick="back()" style="visibility:hidden">Back</button>
+    <button class="btn btn-primary" id="nextBtn" onclick="next()">Continue</button>
+  </div>
+</div>
+
+<script>
+/* =============================================================
+   PRICING CONFIG  —  plug your workbook numbers in here.
+   Prices are RETAIL incl-GST placeholders. Replace with the
+   six package retails + tap/finish/upgrade deltas from your sheet.
+   ============================================================= */
+const GST_RATE = 0.15;
+
+// Retail incl-GST by resolved function combo (unit + filtration + install).
+// Keys are the resolved function set (ambient always implied).
+// Source: HydrateServe_Residential_Pricing_2.xlsx -> "Configurator Feed" tab.
+// Both filtration prices are held per combo so they match the workbook exactly
+// rather than drifting by a dollar off a flat RO delta.
+const BASE = {
+  "ambient"                       : {ufx3:2271, ro:2832},  // filter only, no powered unit
+  "chilled"                       : {ufx3:3853, ro:4413},  // + chiller
+  "chilled+sparkling"             : {ufx3:5664, ro:6224},  // + chiller/sparkling unit + CO2
+  "boiling"                       : {ufx3:4284, ro:4844},  // + boiler
+  "chilled+boiling"               : {ufx3:6728, ro:7288},  // + chiller + boiler
+  "chilled+sparkling+boiling"     : {ufx3:7676, ro:8237}   // full system
+};
+
+/* -------------------------------------------------------------
+   TAP STYLES
+   Style picker, not a product picker. The customer chooses a
+   silhouette + finish; the matching tap is sourced afterwards.
+   Every style carries the same value — no price deltas.
+
+   `img`      = image filename stem
+   `finishes` = [{key: canonical swatch, file: filename suffix}]
+                so inconsistent file naming (polished/chrome,
+                brushed/nickel) still shows one tidy swatch set.
+   Image path = TAP_IMG_BASE + img + "_" + file + ".webp"
+   ------------------------------------------------------------- */
+const TAP_IMG_BASE = "/assets/taps/";  // absolute: this page lives at /residential/finder/
+
+const TAPS = [
+  {id:"arc", name:"Arc", desc:"Curved gooseneck", img:"v7e3a7-curved",
+    finishes:[{key:"chrome",file:"polished"},{key:"brushed",file:"brushed"},{key:"matte",file:"matte"}]},
+  {id:"edge", name:"Edge", desc:"Squared spout", img:"v7e3a7-u",
+    finishes:[{key:"chrome",file:"polished"},{key:"brushed",file:"brushed"},{key:"matte",file:"matte"}]},
+  {id:"draw", name:"Draw", desc:"Squared spout, pull-out", img:"d7e794-u",
+    finishes:[{key:"chrome",file:"chrome"},{key:"brushed",file:"nickel"},{key:"matte",file:"matte"},{key:"gold",file:"gold"}]},
+  {id:"column", name:"Column", desc:"Squared spout, fixed", img:"e7b802",
+    finishes:[{key:"brushed",file:"nickel"},{key:"matte",file:"matte"},{key:"gold",file:"gold"}]}
+];
+
+const FINISH_META = {
+  chrome :{label:"Polished chrome", hex:"linear-gradient(145deg,#f2f5f6,#bcc4c7 48%,#e9edee)", delta:0},
+  brushed:{label:"Brushed steel",   hex:"linear-gradient(145deg,#c9cecf,#a8aeb0 55%,#c1c6c7)", delta:0},
+  matte  :{label:"Matte black",     hex:"#24272a", delta:0},
+  gold   :{label:"Brushed gold",    hex:"linear-gradient(145deg,#cba76c,#a9814b 55%,#c3a068)", delta:0}
+};
+
+function tapImg(t, fkey){
+  const f = t.finishes.find(x=>x.key===fkey) || t.finishes[0];
+  return TAP_IMG_BASE + t.img + "_" + f.file + ".webp";
+}
+function preloadTaps(){
+  TAPS.forEach(t=>t.finishes.forEach(f=>{ const i=new Image(); i.src=tapImg(t,f.key); }));
+}
+
+const FILTRATION = {
+  ufx3:{label:"UFX3 Standard", desc:"3-stage filtration, bundled as standard."},
+  ro:{label:"RO Upgrade", desc:"Reverse osmosis — removes fluoride and nitrate."}
+};
+// The RO uplift is ~$561 but varies by a dollar between combos, so read it
+// from BASE rather than hardcoding a flat delta.
+function roDelta(){ const b=BASE[comboKey()]; return b ? b.ro - b.ufx3 : 0; }
+
+const ADDONS = {
+  warranty:{label:"Extended warranty (+1 year)", price:190, recurring:false},
+  subscription:{label:"Filter subscription (annual)", price:120, recurring:true}
+};
+const CO2_NOTE = "CO₂ bottle + regulator included";
+
+/* =============================================================
+   STATE
+   ============================================================= */
+const state = {
+  step:0,
+  functions:new Set(),      // chilled / sparkling / boiling
+  tap:null,
+  finish:null,
+  filtration:"ufx3",
+  addons:new Set(),
+  fit:{clearance:null, power:null, photo:false}
+};
+
+// Which screens are active (add-ons screen is conditional but we keep it; fit power row conditional)
+function comboKey(){
+  const f=[];
+  if(state.functions.has("chilled")||state.functions.has("sparkling")) f.push("chilled");
+  if(state.functions.has("sparkling")) f.push("sparkling");
+  if(state.functions.has("boiling")) f.push("boiling");
+  return f.length? f.join("+") : "ambient";
+}
+function hasPoweredUnit(){ return state.functions.size>0; } // any function = powered unit
+
+/* =============================================================
+   PRICE
+   ============================================================= */
+function calcPrice(){
+  const b = BASE[comboKey()];
+  let p = b ? b[state.filtration] : 0;   // filtration choice is priced into BASE
+  // tap style + finish carry no price difference — every style is the same value
+  if(state.addons.has("warranty")) p += ADDONS.warranty.price;
+  return p; // one-off incl-GST
+}
+function recurringTotal(){
+  let r=0;
+  if(state.addons.has("subscription")) r+=ADDONS.subscription.price;
+  return r;
+}
+function money(n){ return "$"+n.toLocaleString("en-NZ"); }
+
+function paintPrice(flash){
+  const el=document.getElementById("runval");
+  const rp=document.getElementById("runprice");
+  if(state.functions.size===0 && !state.tap){ el.textContent="—"; return; }
+  el.textContent=money(calcPrice());
+  if(flash){ rp.classList.remove("priceflash"); void rp.offsetWidth; rp.classList.add("priceflash"); }
+}
+
+/* =============================================================
+   SCREENS
+   ============================================================= */
+const FN_META = {
+  chilled:{name:"Chilled", desc:"Cold filtered water on demand.",
+    ico:'<svg viewBox="0 0 24 24" fill="none" stroke="#0e7c86" stroke-width="1.6"><path d="M12 3v18M5 7l14 10M19 7L5 17"/></svg>'},
+  sparkling:{name:"Sparkling", desc:"Chilled + carbonated. Chilled is included.",
+    ico:'<svg viewBox="0 0 24 24" fill="none" stroke="#0e7c86" stroke-width="1.6"><circle cx="7" cy="8" r="1.4"/><circle cx="13" cy="6" r="1.1"/><circle cx="11" cy="12" r="1.6"/><circle cx="16" cy="11" r="1.2"/><circle cx="9" cy="17" r="1.3"/></svg>'},
+  boiling:{name:"Boiling", desc:"Instant 98° water for tea and coffee.",
+    ico:'<svg viewBox="0 0 24 24" fill="none" stroke="#0e7c86" stroke-width="1.6"><path d="M8 3c0 2-2 2-2 4s2 2 2 4M13 3c0 2-2 2-2 4s2 2 2 4M6 13h12l-1 7H7z"/></svg>'}
+};
+
+const screens = [
+  // 0 · FUNCTIONS
+  ()=>`
+    <div class="eyebrow">Build your tap</div>
+    <h1 class="q">What do you want your tap to do?</h1>
+    <p class="sub">Every HydrateServe tap pours <b>filtered ambient water</b> as standard — choose what else you'd like on tap. Pick any combination.</p>
+    <div class="grid g3" id="fnGrid">
+      ${["chilled","sparkling","boiling"].map(k=>{
+        const m=FN_META[k], sel=state.functions.has(k);
+        const lock = k==="chilled" && state.functions.has("sparkling");
+        return `<button class="opt ${sel?'sel':''}" onclick="toggleFn('${k}')" aria-pressed="${sel}">
+          <div class="check"><svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6"/></svg></div>
+          <div class="ico">${m.ico}</div>
+          <div class="name">${m.name}</div>
+          <div class="desc">${lock?'Included with sparkling.':m.desc}</div>
+        </button>`;
+      }).join("")}
+    </div>`,
+
+  // 1 · TAP STYLE + FINISH
+  ()=>{
+    return `
+    <div class="eyebrow">Build your tap</div>
+    <h1 class="q">Choose your style</h1>
+    <p class="sub">Every style delivers your build, and they're all <b>the same price</b> — so pick the one you like. Choose a shape, then a finish.</p>
+
+    <div class="taprail" id="tapRail" role="radiogroup" aria-label="Tap style">
+      ${TAPS.map(t=>{
+        const on = state.tap && state.tap.id===t.id;
+        const fkey = on && state.finish ? state.finish : t.finishes[0].key;
+        return `<div class="opt tap ${on?'sel':''}" id="card-${t.id}" role="radio" tabindex="0"
+             aria-checked="${on}" aria-label="${t.name} — ${t.desc}"
+             onclick="pickTap('${t.id}')"
+             onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();pickTap('${t.id}')}">
+          <div class="check"><svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6"/></svg></div>
+          <div class="shot">
+            <img class="lay on" id="shotA-${t.id}" src="${tapImg(t,fkey)}" alt="${t.name} tap in ${FINISH_META[fkey].label.toLowerCase()}">
+            <img class="lay" id="shotB-${t.id}" alt="" aria-hidden="true">
+          </div>
+          <div class="name" style="font-size:18px">${t.name}</div>
+          <div class="desc">${t.desc}</div>
+          <div class="finishes" onclick="event.stopPropagation()">
+            ${t.finishes.map(f=>{
+              const fm=FINISH_META[f.key], sw = on && state.finish===f.key;
+              return `<button class="sw ${sw?'on':''}" id="sw-${t.id}-${f.key}" type="button"
+                 aria-label="${fm.label}" title="${fm.label}" style="background:${fm.hex}"
+                 onclick="pickFinish('${t.id}','${f.key}')"></button>`;
+            }).join("")}
+          </div>
+        </div>`;
+      }).join("")}
+    </div>
+    <div class="raildots" id="railDots" aria-hidden="true">
+      ${TAPS.map((_,i)=>`<i class="${i===0?'on':''}"></i>`).join("")}
+    </div>
+
+    <p class="footnote">Styles shown are indicative. We confirm the exact tap with you before installation.</p>`;
+  },
+
+  // 2 · FILTRATION
+  ()=>`
+    <div class="eyebrow">Build your tap</div>
+    <h1 class="q">Choose your filtration</h1>
+    <p class="sub">Both options filter every drop from your HydrateServe tap. Most homes are set with UFX3.</p>
+    <div class="grid g2">
+      ${Object.entries(FILTRATION).map(([k,v])=>{
+        const sel=state.filtration===k;
+        return `<button class="opt ${sel?'sel':''}" onclick="pickFilter('${k}')">
+          <div class="check"><svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6"/></svg></div>
+          <div class="name">${v.label}</div>
+          <div class="desc">${v.desc}</div>
+          ${k==='ro' ? `<div class="price-badge">+${money(roDelta())}</div>` : `<div class="incl">Included</div>`}
+        </button>`;
+      }).join("")}
+    </div>`,
+
+  // 3 · ADD-ONS (conditional content)
+  ()=>{
+    const sparkling=state.functions.has("sparkling");
+    const showSub=state.filtration==="ufx3";
+    let cards="";
+    if(sparkling){
+      cards+=`<div class="opt locked sel" style="cursor:default">
+        <div class="check"><svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6"/></svg></div>
+        <div class="name" style="font-size:18px">Sparkling kit</div>
+        <div class="desc">${CO2_NOTE} — added automatically with your sparkling unit.</div>
+        <div class="incl">Included</div></div>`;
+    }
+    cards+=`<button class="opt ${state.addons.has('warranty')?'sel':''}" onclick="toggleAddon('warranty')">
+      <div class="check"><svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6"/></svg></div>
+      <div class="name" style="font-size:18px">${ADDONS.warranty.label}</div>
+      <div class="desc">Adds a third year of cover on your system. Taps carry 5 years as standard.</div>
+      <div class="price-badge">+${money(ADDONS.warranty.price)}</div></button>`;
+    if(showSub){
+      cards+=`<button class="opt ${state.addons.has('subscription')?'sel':''}" onclick="toggleAddon('subscription')">
+        <div class="check"><svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6"/></svg></div>
+        <div class="name" style="font-size:18px">${ADDONS.subscription.label}</div>
+        <div class="desc">Replacement UFX3 filter shipped each year. Cancel anytime.</div>
+        <div class="price-badge">${money(ADDONS.subscription.price)}/yr</div></button>`;
+    }
+    return `
+      <div class="eyebrow">Build your tap</div>
+      <h1 class="q">Anything to add?</h1>
+      <p class="sub">All optional. ${sparkling?'Your CO₂ kit is already included.':'Keep it simple, or add cover and convenience.'}</p>
+      <div class="grid g2">${cards}</div>`;
+  },
+
+  // 4 · FIT CHECK
+  ()=>{
+    const power=hasPoweredUnit();
+    return `
+      <div class="eyebrow">Build your tap</div>
+      <h1 class="q">Last thing — let's make sure it fits</h1>
+      <p class="sub">Your system installs in the cabinet under your sink. A quick check now saves a wasted visit later.</p>
+
+      <div class="fitq">
+        <h3>Space under the sink</h3>
+        <p class="hint">Is there roughly <b>35&nbsp;cm</b> of clear height in the cabinet under your sink?</p>
+        <div class="choices">
+          ${["Yes","No","Not sure"].map(o=>`<button class="chip ${state.fit.clearance===o?'on':''}" onclick="setFit('clearance','${o}')">${o}</button>`).join("")}
+        </div>
+      </div>
+
+      ${power?`<div class="fitq">
+        <h3>Power point</h3>
+        <p class="hint">Your ${comboKey().includes('boiling')?'boiler':''}${comboKey().includes('boiling')&&comboKey().includes('chilled')?' and ':''}${comboKey().includes('chilled')?'chiller':''} needs power. Is there a power point in the cabinet under your sink?</p>
+        <div class="choices">
+          ${["Yes","No","Not sure"].map(o=>`<button class="chip ${state.fit.power===o?'on':''}" onclick="setFit('power','${o}')">${o}</button>`).join("")}
+        </div>
+      </div>`:""}
+
+      <div class="uploadbox" onclick="markPhoto()">${state.fit.photo?'✓ Photo added — thanks, that helps us confirm fit.':'📷 Snap a photo under your sink (optional — helps us confirm)'}</div>
+
+      <div class="softnote ${softFlag()?'show':''}" id="softnote">
+        No problem — we'll confirm fit from your photo before we schedule anything. You can keep going and get your price.
+      </div>`;
+  },
+
+  // 5 · SUMMARY + PRICE
+  ()=>{
+    const combo=comboKey();
+    const fnLabels=[];
+    if(state.functions.has("chilled")||state.functions.has("sparkling"))fnLabels.push("Chilled");
+    if(state.functions.has("sparkling"))fnLabels.push("Sparkling");
+    if(state.functions.has("boiling"))fnLabels.push("Boiling");
+    fnLabels.push("Ambient");
+    const oneoff=calcPrice();
+    const exGst=Math.round(oneoff/(1+GST_RATE));
+    const gst=oneoff-exGst;
+    const rec=recurringTotal();
+    const finishLabel=state.finish?FINISH_META[state.finish].label:"—";
+    return `
+      <div class="eyebrow">Your build</div>
+      <h1 class="q">Here's your HydrateServe tap</h1>
+      <div class="summary">
+        <div class="sum-head">
+          <div>
+            <div class="build">${state.tap?state.tap.name:'Tap'} · ${finishLabel}</div>
+            <div class="fnrow">${fnLabels.map(f=>`<span class="tag">${f}</span>`).join("")}</div>
+          </div>
+          <div class="sum-price">
+            <div class="big">${money(oneoff)}</div>
+            <div class="lil">incl. GST · installed</div>
+          </div>
+        </div>
+        <div class="lines">
+          <div class="line"><span class="l">${state.tap?state.tap.name:'Tap'} (${finishLabel})</span><span class="r">included</span></div>
+          <div class="line"><span class="l">Under-sink unit — ${combo.replace(/\+/g,' + ')}</span><span class="r">included</span></div>
+          <div class="line"><span class="l">${FILTRATION[state.filtration].label}</span><span class="r">included</span></div>
+          ${state.functions.has("sparkling")?`<div class="line"><span class="l">CO₂ bottle + regulator</span><span class="r">included</span></div>`:""}
+          ${state.addons.has("warranty")?`<div class="line"><span class="l">Extended warranty (+1 year)</span><span class="r">${money(ADDONS.warranty.price)}</span></div>`:""}
+          <div class="line"><span class="l">Warranty — 5&nbsp;yr tap · 2&nbsp;yr system${state.addons.has("warranty")?' + 1&nbsp;yr':''}</span><span class="r">included</span></div>
+          <div class="line"><span class="l">Standard installation</span><span class="r">included</span></div>
+          <div class="line"><span class="l">Total incl. GST</span><span class="r inc">${money(oneoff)}</span></div>
+        </div>
+        ${rec?`<div class="recurring">Then ${money(rec)}/yr — filter subscription (cancel anytime).</div>`:""}
+        <div class="clarifier">Your HydrateServe tap <b>replaces your existing kitchen mixer</b>: standard hot and cold, plus filtered water on demand. The mixer flow stays on normal mains; the dedicated filtered dispense is filtered.</div>
+      </div>`;
+  },
+
+  // 6 · BOOK + PAY
+  ()=>{
+    if(state._booked) return `
+      <div class="done-card">
+        <div class="tick"><svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6"/></svg></div>
+        <h1 class="q" style="margin:0 auto">You're booked in</h1>
+        <p class="sub" style="margin:14px auto 0">We'll be in touch to confirm your installation${softFlag()?', once we\'ve checked your photo':''}. (Prototype — no payment taken.)</p>
+      </div>`;
+    return `
+      <div class="eyebrow">Almost there</div>
+      <h1 class="q">Book your installation</h1>
+      <p class="sub">${softFlag()?'We\'ll confirm fit from your photo before scheduling.':'Choose a time that suits — we\'ll confirm within one business day.'}</p>
+      <div class="form">
+        <div class="field"><label>Full name</label><input type="text" placeholder="Jane Smith"></div>
+        <div class="field"><label>Email</label><input type="email" placeholder="jane@email.com"></div>
+        <div class="field"><label>Phone</label><input type="tel" placeholder="021 234 5678"></div>
+        <div class="field"><label>Install area / suburb</label><input type="text" placeholder="e.g. Riccarton"></div>
+        <div class="field full"><label>Preferred timing</label>
+          <select><option>As soon as possible</option><option>Within 2 weeks</option><option>This month</option><option>Just planning for now</option></select></div>
+        <div class="field full">
+          <label>Payment</label>
+          <select><option>Deposit to reserve — balance on install day</option><option>Pay in full now</option></select>
+          <div class="miniclar">Prototype only — payment isn't processed here.</div>
+        </div>
+      </div>`;
+  }
+];
+
+const STEP_LABELS=["Functions","Style","Filtration","Extras","Fit check","Your price","Book"];
+
+/* =============================================================
+   INTERACTIONS
+   ============================================================= */
+function toggleFn(k){
+  if(state.functions.has(k)) state.functions.delete(k);
+  else state.functions.add(k);
+  // sparkling implies chilled
+  if(state.functions.has("sparkling")) state.functions.add("chilled");
+  // if a chosen tap no longer supports the set, clear it
+  render(); paintPrice(true);
+}
+function pickTap(id){
+  const t=TAPS.find(x=>x.id===id);
+  state.tap=t;
+  // keep the finish if this style offers it, otherwise fall back to its first
+  if(!t.finishes.some(f=>f.key===state.finish)) state.finish=t.finishes[0].key;
+  swapShot(t, state.finish);
+  refreshTapUI(); paintPrice(true);
+}
+function pickFinish(id, fkey){
+  const t=TAPS.find(x=>x.id===id);
+  state.tap=t;                    // choosing a finish also chooses the style
+  state.finish=fkey;
+  swapShot(t, fkey);
+  refreshTapUI(); paintPrice(true);
+}
+
+/* cross-fade the tap image between finishes (two stacked layers) */
+function swapShot(t, fkey){
+  const a=document.getElementById("shotA-"+t.id), b=document.getElementById("shotB-"+t.id);
+  if(!a||!b) return;
+  const src=tapImg(t,fkey);
+  const front = a.classList.contains("on") ? a : b;
+  const back  = front===a ? b : a;
+  if(front.getAttribute("src")===src) return;   // already showing it
+  const show=()=>{ back.classList.add("on"); front.classList.remove("on"); };
+  back.alt = t.name+" tap in "+FINISH_META[fkey].label.toLowerCase();
+  back.removeAttribute("aria-hidden"); front.setAttribute("aria-hidden","true"); front.alt="";
+  if(back.getAttribute("src")===src && back.complete){ show(); }
+  else { back.onload=show; back.src=src; }
+}
+
+/* update selection states without rebuilding the rail (keeps scroll position) */
+function refreshTapUI(){
+  TAPS.forEach(t=>{
+    const card=document.getElementById("card-"+t.id);
+    if(!card) return;
+    const on = state.tap && state.tap.id===t.id;
+    card.classList.toggle("sel", on);
+    card.setAttribute("aria-checked", on);
+    t.finishes.forEach(f=>{
+      const sw=document.getElementById("sw-"+t.id+"-"+f.key);
+      if(sw) sw.classList.toggle("on", on && state.finish===f.key);
+    });
+    if(!on) swapShot(t, t.finishes[0].key);   // unselected cards return to their default finish
+  });
+  const nb=document.getElementById("nextBtn"); if(nb) nb.disabled=!canProceed();
+}
+
+/* mobile carousel dots */
+function bindRail(){
+  const rail=document.getElementById("tapRail"), dots=document.getElementById("railDots");
+  if(!rail||!dots) return;
+  const paint=()=>{
+    const kids=[...rail.children], mid=rail.scrollLeft+rail.clientWidth/2;
+    let best=0, d=Infinity;
+    kids.forEach((k,i)=>{ const c=k.offsetLeft+k.offsetWidth/2, dist=Math.abs(c-mid); if(dist<d){d=dist;best=i;} });
+    [...dots.children].forEach((n,i)=>n.classList.toggle("on", i===best));
+  };
+  rail.addEventListener("scroll", ()=>{ clearTimeout(rail._t); rail._t=setTimeout(paint,60); }, {passive:true});
+  paint();
+}
+function pickFilter(k){
+  state.filtration=k;
+  if(k==="ro") state.addons.delete("subscription"); // sub only with UFX3
+  render(); paintPrice(true);
+}
+function toggleAddon(k){
+  if(state.addons.has(k)) state.addons.delete(k); else state.addons.add(k);
+  render(); paintPrice(true);
+}
+function setFit(key,val){ state.fit[key]=val; render(); }
+function markPhoto(){ state.fit.photo=!state.fit.photo; render(); }
+function softFlag(){
+  const c=state.fit.clearance, p=state.fit.power;
+  const bad=v=>v==="No"||v==="Not sure";
+  return bad(c)||(hasPoweredUnit()&&bad(p));
+}
+
+/* =============================================================
+   NAV + GATING
+   ============================================================= */
+function canProceed(){
+  switch(state.step){
+    case 0: return true; // ambient-only allowed
+    case 1: return !!state.tap;              // must pick a tap
+    case 2: return true;
+    case 3: return true;
+    case 4: return state.fit.clearance!==null && (!hasPoweredUnit()||state.fit.power!==null);
+    case 5: return true;
+    case 6: return true;
+    default:return true;
+  }
+}
+function next(){
+  if(state.step===6){ // book
+    state._booked=true; render(); 
+    document.getElementById("nextBtn").style.visibility="hidden";
+    document.getElementById("backBtn").style.visibility="hidden";
+    return;
+  }
+  if(!canProceed()) return;
+  state.step++; render();
+}
+function back(){ if(state.step>0){ state.step--; render(); } }
+
+function render(){
+  const stage=document.getElementById("stage");
+  stage.innerHTML=`<div class="screen in">${screens[state.step]()}</div>`;
+  // progress
+  const steps=document.getElementById("steps");
+  steps.innerHTML=STEP_LABELS.map((_,i)=>`<div class="seg ${i<state.step?'done':''} ${i===state.step?'active':''}"><i></i></div>`).join("");
+  document.getElementById("stepnum").textContent=`${STEP_LABELS[state.step]} · ${state.step+1} of ${STEP_LABELS.length}`;
+  // footer buttons
+  document.getElementById("backBtn").style.visibility= state.step===0?"hidden":"visible";
+  const nb=document.getElementById("nextBtn");
+  nb.disabled=!canProceed();
+  if(state.step===5){ nb.textContent="Book installation"; }
+  else if(state.step===6){ nb.textContent="Confirm booking"; }
+  else nb.textContent="Continue";
+  if(state.step===1) bindRail();
+  paintPrice(false);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+preloadTaps();
+render();
+</script>
+</body>
+</html>
