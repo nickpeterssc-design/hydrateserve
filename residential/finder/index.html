@@ -190,6 +190,7 @@ h1.q{font-family:var(--display);font-weight:400;font-size:clamp(28px,4.4vw,44px)
 .field input:focus,.field select:focus{outline:none;border-color:var(--water)}
 @media(max-width:520px){.form{grid-template-columns:1fr}}
 .miniclar{font-size:12.5px;color:var(--ink-soft);margin-top:6px}
+.errbox{margin-top:22px;padding:14px 16px;border:1px solid #C8846F;background:#FBF0EC;color:#8A3D24;font-size:14px;border-radius:var(--radius)}
 .done-card{text-align:center;padding:50px 20px}
 .done-card .tick{width:64px;height:64px;border-radius:50%;background:var(--water-wash);display:grid;place-items:center;margin:0 auto 20px}
 .done-card .tick svg{width:30px;height:30px;stroke:var(--water);stroke-width:2.5;fill:none}
@@ -299,6 +300,10 @@ const ADDONS = {
 };
 const CO2_NOTE = "CO₂ bottle + regulator included";
 
+// Booking submissions land here. Every route posts the lead before doing
+// anything else, so no enquiry is lost even when the gateway is not live.
+const FORM_ENDPOINT = "https://formspree.io/f/xykrdyoj";
+
 // How the customer wants to proceed from the booking screen.
 // "now" is the only route that touches the payment gateway - see startPayment().
 const PAY_OPTIONS = [
@@ -324,6 +329,9 @@ const state = {
   filtration:"ufx3",
   addons:new Set(),
   payment:null,             // now / invoice / call
+  // Held in state, not read off the DOM, because render() rebuilds the
+  // booking screen on every chip click and would otherwise wipe what was typed.
+  contact:{name:"", email:"", phone:"", suburb:""},
   fit:{clearance:null, power:null, photo:false}
 };
 
@@ -545,8 +553,8 @@ const screens = [
   ()=>{
     if(state._payPending) return `
       <div class="done-card">
-        <h1 class="q" style="margin:0 auto">Card payment isn't switched on yet</h1>
-        <p class="sub" style="margin:14px auto 0">Nothing has been charged. Choose <b>Request an invoice</b> or <b>Request a call from us</b> and we'll pick it up from there.</p>
+        <h1 class="q" style="margin:0 auto">We've got your details</h1>
+        <p class="sub" style="margin:14px auto 0">Card payment isn't switched on here yet, so <b>nothing has been charged</b>. Your build has come through to us and we'll be in touch to arrange payment - or pick another option below.</p>
         <button class="btn btn-line" style="margin-top:24px" onclick="clearPay()">Back to options</button>
       </div>`;
     if(state._booked){
@@ -562,11 +570,20 @@ const screens = [
       <div class="eyebrow">Almost there</div>
       <h1 class="q">Book your installation</h1>
       <p class="sub">${softFlag()?"We'll confirm fit from your photo before scheduling.":"Tell us where to reach you and how you'd like to go ahead."}</p>
+      ${state._error?`<div class="errbox">${state._error}</div>`:''}
       <div class="form">
-        <div class="field"><label>Full name</label><input type="text" placeholder="Jane Smith"></div>
-        <div class="field"><label>Email</label><input type="email" placeholder="jane@email.com"></div>
-        <div class="field"><label>Phone</label><input type="tel" placeholder="021 234 5678"></div>
-        <div class="field"><label>Install area / suburb</label><input type="text" placeholder="e.g. Riccarton"></div>
+        <div class="field"><label for="bkName">Full name</label>
+          <input id="bkName" type="text" autocomplete="name" placeholder="Jane Smith"
+                 value="${esc(state.contact.name)}" oninput="setContact('name',this.value)"></div>
+        <div class="field"><label for="bkEmail">Email</label>
+          <input id="bkEmail" type="email" autocomplete="email" placeholder="jane@email.com"
+                 value="${esc(state.contact.email)}" oninput="setContact('email',this.value)"></div>
+        <div class="field"><label for="bkPhone">Phone</label>
+          <input id="bkPhone" type="tel" autocomplete="tel" placeholder="021 234 5678"
+                 value="${esc(state.contact.phone)}" oninput="setContact('phone',this.value)"></div>
+        <div class="field"><label for="bkSuburb">Install area / suburb</label>
+          <input id="bkSuburb" type="text" placeholder="e.g. Riccarton"
+                 value="${esc(state.contact.suburb)}" oninput="setContact('suburb',this.value)"></div>
         <div class="field full">
           <label>How would you like to go ahead?</label>
           <div class="choices">
@@ -664,6 +681,54 @@ function setFit(key,val){ state.fit[key]=val; render(); }
 function markPhoto(){ state.fit.photo=!state.fit.photo; render(); }
 function setPayment(k){ state.payment=k; render(); }
 function clearPay(){ state._payPending=false; render(); }
+function esc(s){ return String(s==null?"":s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;"); }
+/* Typing must not re-render - that would rebuild the field and drop focus.
+   Just hold the value and refresh whether Continue is allowed. */
+function setContact(k,v){
+  state.contact[k]=v;
+  const nb=document.getElementById("nextBtn");
+  if(nb) nb.disabled=!canProceed();
+}
+
+/* Post the lead before anything else, whichever route was chosen, so an
+   enquiry is never lost. Only shows a confirmation if Formspree accepted it. */
+async function submitBooking(){
+  state._sending=true; state._error=null; render();
+  const fns=[...state.functions];
+  const payload={
+    _subject:"HydrateServe configurator - "+(state.tap?state.tap.name:"tap")+" build",
+    name:state.contact.name,
+    email:state.contact.email,
+    phone:state.contact.phone,
+    suburb:state.contact.suburb,
+    how_to_proceed:(PAY_OPTIONS.find(o=>o.key===state.payment)||{}).label||state.payment,
+    build:comboKey(),
+    functions:fns.length?fns.join(", "):"ambient only",
+    tap:state.tap?state.tap.name:"",
+    finish:state.finish?FINISH_META[state.finish].label:"",
+    filtration:FILTRATION[state.filtration].label,
+    extended_warranty:state.addons.has("warranty")?"Yes (+"+money(ADDONS.warranty.price)+")":"No",
+    total_incl_gst:money(calcPrice()),
+    fit_clearance:state.fit.clearance||"not answered",
+    fit_power:hasPoweredUnit()?(state.fit.power||"not answered"):"n/a",
+    fit_photo:state.fit.photo?"Customer said they have a photo":"none"
+  };
+  try{
+    const res=await fetch(FORM_ENDPOINT,{
+      method:"POST",
+      headers:{"Content-Type":"application/json",Accept:"application/json"},
+      body:JSON.stringify(payload)
+    });
+    if(!res.ok) throw new Error("HTTP "+res.status);
+    state._sending=false;
+    if(state.payment==="now"){ startPayment(); }
+    else { state._booked=true; render(); }
+  }catch(err){
+    state._sending=false;
+    state._error="We couldn't send that just now - please check your connection and try again.";
+    render();
+  }
+}
 
 /* =============================================================
    PAYMENT GATEWAY HOOK
@@ -696,15 +761,16 @@ function canProceed(){
     case 3: return true;
     case 4: return state.fit.clearance!==null && (!hasPoweredUnit()||state.fit.power!==null);
     case 5: return true;
-    case 6: return state.payment!==null;      // must choose how to proceed
+    // Need a route plus enough to actually reply to them.
+    case 6: return state.payment!==null && !state._sending
+              && state.contact.name.trim()!=="" && /\S+@\S+\.\S+/.test(state.contact.email);
     default:return true;
   }
 }
 function next(){
   if(state.step===6){ // book
     if(!canProceed()) return;
-    if(state.payment==="now"){ startPayment(); return; }  // render() hides the nav
-    state._booked=true; render();
+    submitBooking();   // posts the lead, then routes to payment or confirmation
     return;
   }
   if(!canProceed()) return;
@@ -728,7 +794,7 @@ function render(){
   if(state.step===5){ nb.textContent="Book installation"; }
   else if(state.step===6){
     const o=PAY_OPTIONS.find(x=>x.key===state.payment);
-    nb.textContent = o ? o.label : "Choose an option";
+    nb.textContent = state._sending ? "Sending..." : (o ? o.label : "Choose an option");
   }
   else nb.textContent="Continue";
   if(state.step===1) bindRail();
