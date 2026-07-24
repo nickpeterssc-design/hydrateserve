@@ -1,6 +1,6 @@
 # Checkout Worker
 
-Takes a configured build from `/residential/finder`, prices it server-side, and
+Takes a configured build from `/finder`, prices it server-side, and
 creates a **Shopify draft order** so the customer pays through the existing
 Hydrate Filters store. Orders land in Shopify admin like any other.
 

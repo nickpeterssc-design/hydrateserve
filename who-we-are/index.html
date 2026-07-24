@@ -96,9 +96,10 @@ footer .brand{font-size:14px;color:var(--ink)}
   <a class="mobile-cta" href="/#contact">Enquire</a>
   <button class="menu-btn" id="menuBtn" aria-label="Open menu">Menu</button>
   <nav id="nav">
-    <a href="/#water">The Water</a>
-    <a href="/#system">The System</a>
-    <a href="/#sustainability">Sustainability</a>
+    <a href="/#tap">The Tap</a>
+    <a href="/#soda">Sparkling</a>
+    <a href="/#boiling">Boiling</a>
+    <a href="/#filter">Filtration</a>
     <a class="hide-mobile" href="/who-we-are">About us</a>
     <a class="nav-cta" href="/#contact">Enquire</a>
   </nav>
@@ -175,6 +176,24 @@ footer .brand{font-size:14px;color:var(--ink)}
 </footer>
 
 <script>
+/* Shared About page. The default markup points at the residential home (the
+   primary site). Commercial links here with ?from=commercial, and this
+   rewrites the header, footer and CTA to send those visitors back to the
+   commercial world instead - so no one gets bounced across sites. */
+(function(){
+  if(new URLSearchParams(location.search).get('from')!=='commercial') return;
+  const HOME='/commercial', CONTACT=HOME+'#contact';
+  document.querySelectorAll('.brand').forEach(a=>a.setAttribute('href',HOME));
+  const mob=document.querySelector('.mobile-cta'); if(mob) mob.setAttribute('href',CONTACT);
+  document.querySelectorAll('.cta-band a.btn').forEach(a=>a.setAttribute('href',CONTACT));
+  const navEl=document.getElementById('nav');
+  if(navEl) navEl.innerHTML=
+    '<a href="/commercial#water">The Water</a>'+
+    '<a href="/commercial#system">The System</a>'+
+    '<a href="/commercial#sustainability">Sustainability</a>'+
+    '<a class="hide-mobile" href="/who-we-are?from=commercial">About us</a>'+
+    '<a class="nav-cta" href="/commercial#contact">Enquire</a>';
+})();
 const header=document.getElementById('header');
 const onScroll=()=>header.classList.toggle('scrolled',window.scrollY>40);
 onScroll();addEventListener('scroll',onScroll,{passive:true});
