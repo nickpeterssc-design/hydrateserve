@@ -31,6 +31,10 @@ header::before{content:"";position:absolute;inset:0;background:rgba(255,255,255,
 header.scrolled::before{opacity:1}
 header.scrolled{box-shadow:0 1px 0 var(--line)}
 .brand{font-family:var(--display);font-size:19px;letter-spacing:.32em;text-transform:uppercase}
+/* Libre Baskerville is wide; shrink the logo on small phones so it can't
+   push the menu button off the right edge of the header. */
+@media(max-width:480px){.brand{font-size:14px;letter-spacing:.14em}}
+@media(max-width:360px){.brand{font-size:12px;letter-spacing:.08em}}
 .brand span{color:var(--sky)}
 header.on-hero:not(.scrolled){color:#fff}
 header.on-hero:not(.scrolled) .brand span{color:var(--sky)}
@@ -47,7 +51,7 @@ nav a:hover{opacity:1}
   nav a{font-size:14px}
   .menu-btn{display:block;position:relative;z-index:60}
   .hide-mobile{display:none}
-  .mobile-cta{display:inline-block;font-size:10px;letter-spacing:.2em;text-transform:uppercase;font-weight:500;border:1px solid currentColor;padding:9px 18px;border-radius:100px;margin-left:auto;margin-right:18px}
+  .mobile-cta{display:inline-block;font-size:10px;letter-spacing:.2em;text-transform:uppercase;font-weight:500;border:1px solid currentColor;padding:8px 13px;border-radius:100px;margin-left:auto;margin-right:12px}
 }
 
 /* page hero - quiet ink band */
