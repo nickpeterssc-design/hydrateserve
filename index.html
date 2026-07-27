@@ -77,6 +77,13 @@ header.on-hero:not(.scrolled) .brand span{color:var(--sky)}
 nav{display:flex;gap:38px;align-items:center}
 nav a{font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;font-weight:500;opacity:.85;transition:opacity .25s}
 nav a:hover{opacity:1}
+/* Seven items is a lot: between the 860px mobile menu and roomy desktop, tighten
+   the gap and tracking so the row never wraps to two lines. */
+@media(min-width:861px) and (max-width:1200px){
+  nav{gap:clamp(15px,2.1vw,34px)}
+  nav a{letter-spacing:.11em}
+  .nav-cta{padding:9px 16px}
+}
 .nav-cta{border:1px solid currentColor;padding:10px 22px;border-radius:100px;transition:background .3s,color .3s,border-color .3s}
 header.scrolled .nav-cta:hover,.nav-cta:hover{background:var(--ink);color:#fff;border-color:var(--ink);opacity:1}
 .menu-btn{display:none;background:none;border:0;color:inherit;font:inherit;cursor:pointer;letter-spacing:.22em;text-transform:uppercase;font-size:11.5px}
@@ -213,6 +220,29 @@ section{padding:clamp(84px,12vh,150px) var(--pad)}
 .build-band p{margin:22px auto 0;max-width:46ch;color:rgba(255,255,255,.85);font-size:clamp(16px,1.6vw,20px);font-weight:300}
 .build-band .btn{margin-top:38px}
 
+/* ---------- CTAs (conversion) ---------- */
+/* solid filled button for light grounds */
+.btn-fill{background:var(--glass);color:#fff}
+.btn-fill:hover{background:var(--ink)}
+/* reassurance micro-copy under a primary CTA */
+.cta-micro{margin-top:14px;font-size:12.5px;color:var(--steel);letter-spacing:.02em}
+/* lead CTA band on white (top of page + after sustainability) */
+.lead-cta{background:var(--white);text-align:center;padding:clamp(40px,6vh,72px) var(--pad)}
+.lead-cta .btn{margin:0}
+/* inline text CTA at the foot of each product section */
+.cta-link{display:inline-flex;align-items:center;gap:9px;margin-top:26px;font-family:var(--body);font-weight:500;
+  font-size:11.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--glass);transition:gap .3s ease}
+.cta-link:hover{gap:15px}
+.cta-link .arw{font-size:14px;line-height:1}
+/* sticky mobile action bar */
+.sticky-cta{position:fixed;left:16px;right:16px;bottom:16px;z-index:40;display:none;text-align:center;
+  padding:15px 20px;border-radius:100px;background:var(--glass);color:#fff;font-family:var(--body);font-weight:500;
+  font-size:11.5px;letter-spacing:.2em;text-transform:uppercase;box-shadow:0 10px 30px rgba(11,30,38,.3);
+  transition:opacity .3s ease,transform .3s ease}
+.sticky-cta.hide{opacity:0;transform:translateY(120%);pointer-events:none}
+@media(max-width:860px){.sticky-cta{display:block}}
+@media(prefers-reduced-motion:reduce){.sticky-cta{transition:none}}
+
 /* ---------- sustainability ---------- */
 .sustain{background:var(--mist)}
 .zero-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-top:clamp(48px,6vh,72px)}
@@ -221,6 +251,21 @@ section{padding:clamp(84px,12vh,150px) var(--pad)}
 .zero{background:var(--mist);padding:clamp(30px,3.5vw,48px);text-align:left}
 .zero b{font-family:var(--display);font-weight:400;font-size:clamp(28px,3.2vw,40px);display:block;margin-bottom:10px;color:var(--glass)}
 .zero span{font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft);font-weight:500}
+
+/* ---------- FAQ (subtle: hairlines only, no boxes) ---------- */
+.faq{background:var(--white)}
+.faq .sec-head{margin-bottom:clamp(26px,4vh,42px)}
+.faq .eyebrow{display:block;margin-bottom:16px}
+.faq-list{max-width:64ch;border-top:1px solid var(--line)}
+.faq-item{border-bottom:1px solid var(--line)}
+.faq-item summary{list-style:none;cursor:pointer;padding:22px 0;display:flex;justify-content:space-between;align-items:baseline;gap:24px;
+  font-family:var(--display);font-weight:400;font-size:clamp(16px,1.9vw,19px);letter-spacing:.01em;color:var(--ink)}
+.faq-item summary::-webkit-details-marker{display:none}
+.faq-item summary:hover{color:var(--glass)}
+.faq-item summary .mk{flex:0 0 auto;color:var(--steel);font-family:var(--body);font-size:20px;line-height:1;transition:transform .3s ease}
+.faq-item[open] summary .mk{transform:rotate(45deg)}
+.faq-item .ans{padding:0 0 24px;color:var(--ink-soft);font-size:15.5px;line-height:1.7;max-width:60ch}
+.faq-item .ans a{color:var(--glass);border-bottom:1px solid var(--line)}
 
 /* ---------- contact ---------- */
 .contact{background:var(--ink);color:#fff;scroll-margin-top:92px}
@@ -267,7 +312,8 @@ footer .brand{font-size:14px;color:var(--ink)}
     <a href="#boiling">Boiling</a>
     <a href="#filter">Filtration</a>
     <a href="/who-we-are">About us</a>
-    <a class="nav-cta" href="#contact">Enquire</a>
+    <a href="#contact">Enquire</a>
+    <a class="nav-cta" href="/finder" data-cta="header">Build &amp; price</a>
   </nav>
 </header>
 
@@ -320,6 +366,12 @@ footer .brand{font-size:14px;color:var(--ink)}
   </div>
 </div>
 
+<!-- ================= HERO CTA ================= -->
+<section class="lead-cta reveal">
+  <a class="btn btn-fill" href="/finder" data-cta="hero">Build &amp; price your system</a>
+  <p class="cta-micro">6 questions, about 2 minutes - instant price. No payment details, no obligation.</p>
+</section>
+
 <!-- ================= 01 · THE TAP ================= -->
 <section class="part" id="tap">
   <div class="grid-2">
@@ -334,6 +386,7 @@ footer .brand{font-size:14px;color:var(--ink)}
         <li>Child-safe control on the boiling side</li>
         <li>Watermark certified - 5 year warranty</li>
       </ul>
+      <a class="cta-link" href="/finder" data-cta="sec-tap">Build &amp; price your system <span class="arw" aria-hidden="true">&rarr;</span></a>
     </div>
     <div class="media-slot reveal" role="img" aria-label="Photograph slot - the tap in a residential kitchen">
       <img src="assets/residential-tap.jpg" alt="The HydrateServe tap installed at a residential kitchen sink." loading="lazy" onerror="this.remove()">
@@ -359,6 +412,7 @@ footer .brand{font-size:14px;color:var(--ink)}
         <li>Easy CO₂ cylinder swaps</li>
         <li>Sits alongside the filtration system in the cabinet</li>
       </ul>
+      <a class="cta-link" href="/finder?fn=sparkling" data-cta="sec-sparkling">Price a chilled &amp; sparkling setup <span class="arw" aria-hidden="true">&rarr;</span></a>
     </div>
   </div>
 </section>
@@ -377,6 +431,7 @@ footer .brand{font-size:14px;color:var(--ink)}
         <li>Filtered before it's heated, so no scale or off-taste</li>
         <li>Safety-locked at the tap</li>
       </ul>
+      <a class="cta-link" href="/finder?fn=boiling" data-cta="sec-boiling">Price a boiling setup <span class="arw" aria-hidden="true">&rarr;</span></a>
     </div>
     <div class="media-slot reveal" role="img" aria-label="Photograph slot - the boiling water unit under the bench">
       <img src="assets/residential-boiling.jpg" alt="The HydrateServe boiling water unit installed in the cabinet under the sink." loading="lazy" onerror="this.remove()">
@@ -401,16 +456,9 @@ footer .brand{font-size:14px;color:var(--ink)}
         <li>Easy cartridge changes</li>
         <li>Installed free by our professionals NZ wide</li>
       </ul>
+      <a class="cta-link" href="/finder?fn=filter" data-cta="sec-filter">Price RO filtration <span class="arw" aria-hidden="true">&rarr;</span></a>
     </div>
   </div>
-</section>
-
-<!-- ================= BUILD CTA ================= -->
-<section class="build-band reveal">
-  <span class="eyebrow">Build &amp; price online</span>
-  <h2 class="display">Configure your system. See your price.</h2>
-  <p>Choose your functions, pick a style, and get an instant price - shaped to fit your kitchen.</p>
-  <a class="btn btn-solid" href="/finder">Build your tap</a>
 </section>
 
 <!-- ================= SUSTAINABILITY ================= -->
@@ -433,28 +481,85 @@ footer .brand{font-size:14px;color:var(--ink)}
   </div>
 </section>
 
+<!-- ================= BUILD CTA (peak-conviction: right after sustainability) ================= -->
+<section class="build-band reveal">
+  <span class="eyebrow">Build &amp; price online</span>
+  <h2 class="display">Configure your system. See your price.</h2>
+  <p>Choose your functions, pick a style, and get an instant price - shaped to fit your kitchen.</p>
+  <a class="btn btn-solid" href="/finder" data-cta="build-band">Build &amp; price your system</a>
+  <p class="cta-micro" style="color:rgba(255,255,255,.72)">No payment details, no obligation. Free install NZ-wide.</p>
+</section>
+
+<!-- ================= FAQ ================= -->
+<section class="faq" aria-label="Frequently asked questions">
+  <div class="sec-head reveal">
+    <span class="eyebrow">Good to know</span>
+    <h2 class="display" style="font-size:clamp(24px,3.4vw,38px)">A few common questions.</h2>
+  </div>
+  <div class="faq-list reveal">
+    <details class="faq-item">
+      <summary>Does it replace my kitchen tap?<span class="mk" aria-hidden="true">+</span></summary>
+      <div class="ans">Yes. Your HydrateServe tap replaces your existing mixer - you keep normal hot and cold, and add filtered, chilled, sparkling and boiling water on demand from the one tap.</div>
+    </details>
+    <details class="faq-item">
+      <summary>What does a system cost?<span class="mk" aria-hidden="true">+</span></summary>
+      <div class="ans">It depends on the functions you choose. You can <a href="/finder">build your system online</a> for an instant, all-inclusive price, or ask us for a no-obligation quote.</div>
+    </details>
+    <details class="faq-item">
+      <summary>Where do you install?<span class="mk" aria-hidden="true">+</span></summary>
+      <div class="ans">Right across New Zealand. Our own technicians design, install and maintain every system.</div>
+    </details>
+    <details class="faq-item">
+      <summary>Is the boiling water safe around children?<span class="mk" aria-hidden="true">+</span></summary>
+      <div class="ans">Yes - the boiling side has a child-safe control, so it can't be triggered by accident.</div>
+    </details>
+    <details class="faq-item">
+      <summary>How is the system looked after?<span class="mk" aria-hidden="true">+</span></summary>
+      <div class="ans">Filter changes, CO2 supply and scheduled servicing are part of every installation - you pour, we look after the rest.</div>
+    </details>
+    <details class="faq-item">
+      <summary>What warranty does it come with?<span class="mk" aria-hidden="true">+</span></summary>
+      <div class="ans">Watermark-certified taps carry a 5-year warranty, with cover on the under-bench system as well.</div>
+    </details>
+  </div>
+</section>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Does it replace my kitchen tap?","acceptedAnswer":{"@type":"Answer","text":"Yes. Your HydrateServe tap replaces your existing mixer - you keep normal hot and cold, and add filtered, chilled, sparkling and boiling water on demand from the one tap."}},
+{"@type":"Question","name":"What does a system cost?","acceptedAnswer":{"@type":"Answer","text":"It depends on the functions you choose. You can build your system online for an instant, all-inclusive price, or ask us for a no-obligation quote."}},
+{"@type":"Question","name":"Where do you install?","acceptedAnswer":{"@type":"Answer","text":"Right across New Zealand. Our own technicians design, install and maintain every system."}},
+{"@type":"Question","name":"Is the boiling water safe around children?","acceptedAnswer":{"@type":"Answer","text":"Yes - the boiling side has a child-safe control, so it cannot be triggered by accident."}},
+{"@type":"Question","name":"How is the system looked after?","acceptedAnswer":{"@type":"Answer","text":"Filter changes, CO2 supply and scheduled servicing are part of every installation - you pour, we look after the rest."}},
+{"@type":"Question","name":"What warranty does it come with?","acceptedAnswer":{"@type":"Answer","text":"Watermark-certified taps carry a 5-year warranty, with cover on the under-bench system as well."}}
+]}
+</script>
+
 <!-- ================= CONTACT ================= -->
 <section id="contact" class="contact">
   <div class="grid-2" style="align-items:start">
     <div class="reveal">
-      <span class="eyebrow" style="display:block;margin-bottom:20px">Book a Chat</span>
-      <h2 class="display">Chat with us.</h2>
+      <span class="eyebrow" style="display:block;margin-bottom:20px">Free quote</span>
+      <h2 class="display">Get your free quote.</h2>
+      <p class="lede" style="margin-top:24px">Tell us a little about your kitchen and we'll come back with a no-obligation quote.</p>
     </div>
-    <form class="reveal" action="https://formspree.io/f/xlgovnvj" method="POST">
+    <form class="reveal" action="https://formspree.io/f/xlgovnvj" method="POST" data-cta="lead-form">
       <input type="hidden" name="enquiry_type" value="Residential">
       <div class="field"><label for="name">Name</label><input id="name" name="name" type="text" required autocomplete="name"></div>
-      <div class="field"><label for="suburb">Suburb</label><input id="suburb" name="suburb" type="text" required></div>
       <div class="field"><label for="email">Email</label><input id="email" name="email" type="email" required autocomplete="email"></div>
       <div class="field"><label for="phone">Phone</label><input id="phone" name="phone" type="tel" autocomplete="tel"></div>
+      <div class="field"><label for="suburb">Suburb</label><input id="suburb" name="suburb" type="text" autocomplete="address-level2"></div>
       <div class="field full">
         <!-- Label hidden rather than removed: the box still needs a name for screen readers. -->
         <label for="message" class="visually-hidden">Your message</label>
-        <textarea id="message" name="message" placeholder="Your message"></textarea>
+        <textarea id="message" name="message" placeholder="Anything we should know? (optional)"></textarea>
       </div>
-      <button class="btn submit" type="submit">Enquire Today</button>
+      <button class="btn submit" type="submit">Get my free quote</button>
+      <p class="reply-note" style="margin-top:14px;font-size:12.5px;letter-spacing:.02em;color:rgba(255,255,255,.55)">We reply within one business day.</p>
     </form>
   </div>
 </section>
+
+<a class="sticky-cta" href="/finder" data-cta="sticky">Build &amp; price - instant quote</a>
 
 <footer>
   <a class="brand" href="#top">Hydrate<span style="color:var(--sky)">Serve</span></a>
@@ -476,6 +581,26 @@ nav.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{nav.classLi
 // Reveal on scroll
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.14});
 document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+// Sticky mobile CTA: hide once the enquiry form is on screen (no point nagging then)
+const stickyCta=document.querySelector('.sticky-cta');
+const contactSec=document.getElementById('contact');
+if(stickyCta&&contactSec&&'IntersectionObserver' in window){
+  new IntersectionObserver(es=>es.forEach(e=>stickyCta.classList.toggle('hide',e.isIntersecting)),{threshold:.05}).observe(contactSec);
+}
+
+// Analytics hook. No-op until GA4/Plausible is added in <head>; then events fire on their own.
+function track(name,params){
+  try{
+    if(window.gtag){window.gtag('event',name,params||{});}
+    else if(window.plausible){window.plausible(name,{props:params||{}});}
+    else{(window.dataLayer=window.dataLayer||[]).push(Object.assign({event:name},params||{}));}
+  }catch(e){}
+}
+document.querySelectorAll('[data-cta]').forEach(el=>{
+  if(el.tagName==='FORM'){el.addEventListener('submit',()=>track('lead_submit',{location:el.getAttribute('data-cta')}));}
+  else{el.addEventListener('click',()=>track('cta_click',{location:el.getAttribute('data-cta'),href:el.getAttribute('href')}));}
+});
 
 // Signature: fine rising bubbles (sparkling section)
 function spawnBubbles(el,count,durMin,durMax){

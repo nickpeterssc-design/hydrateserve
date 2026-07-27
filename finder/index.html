@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Build your tap - HydrateServe | Configure &amp; price your system</title>
-<meta name="description" content="Build your HydrateServe tap: choose still, sparkling, boiling and filtration, pick a style, and get an instant price. Installed across New Zealand.">
+<title>Build &amp; price your system - HydrateServe | NZ</title>
+<meta name="description" content="Build your HydrateServe system: choose still, sparkling, boiling and filtration, pick a tap style, and get an instant price. Installed across New Zealand.">
 <link rel="canonical" href="https://hydrateserve.co.nz/finder">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="HydrateServe">
 <meta property="og:locale" content="en_NZ">
 <meta property="og:url" content="https://hydrateserve.co.nz/finder">
-<meta property="og:title" content="Build your tap - HydrateServe">
+<meta property="og:title" content="Build & price your system - HydrateServe">
 <meta property="og:description" content="Choose your functions, pick a style, and get an instant price for your HydrateServe system.">
 <meta property="og:image" content="https://hydrateserve.co.nz/assets/residential-hero.png">
 <meta name="twitter:card" content="summary_large_image">
@@ -400,8 +400,8 @@ const FN_META = {
 const screens = [
   // 0 · FUNCTIONS
   ()=>`
-    <div class="eyebrow">Build your tap</div>
-    <h1 class="q">What do you want your tap to do?</h1>
+    <div class="eyebrow">Build your system</div>
+    <h1 class="q">What do you want your system to do?</h1>
     <p class="sub">Every HydrateServe tap pours <b>filtered ambient water</b> as standard - choose what else you'd like on tap. Pick any combination.</p>
     <div class="grid g3" id="fnGrid">
       ${["chilled","sparkling","boiling"].map(k=>{
@@ -419,7 +419,7 @@ const screens = [
   // 1 · TAP STYLE + FINISH
   ()=>{
     return `
-    <div class="eyebrow">Build your tap</div>
+    <div class="eyebrow">Build your system</div>
     <h1 class="q">Choose your style</h1>
     <p class="sub">Every style delivers your build, and they're all <b>the same price</b> - ${money(TAP_PRICE)}, whichever you pick. Choose a shape, then a finish.</p>
 
@@ -458,7 +458,7 @@ const screens = [
 
   // 2 · FILTRATION
   ()=>`
-    <div class="eyebrow">Build your tap</div>
+    <div class="eyebrow">Build your system</div>
     <h1 class="q">Choose your filtration</h1>
     <p class="sub">Both options filter every drop from your HydrateServe tap. Most homes are set with UFX3.</p>
     <div class="grid g2">
@@ -490,7 +490,7 @@ const screens = [
       <div class="desc">Adds a third year of cover on your system. Taps carry 5 years as standard.</div>
       <div class="price-badge">+${money(ADDONS.warranty.price)}</div></button>`;
     return `
-      <div class="eyebrow">Build your tap</div>
+      <div class="eyebrow">Build your system</div>
       <h1 class="q">Anything to add?</h1>
       <p class="sub">All optional. ${sparkling?'Your CO₂ kit is already included.':'Keep it simple, or add extra cover.'}</p>
       <div class="grid g2">${cards}</div>`;
@@ -500,7 +500,7 @@ const screens = [
   ()=>{
     const power=hasPoweredUnit();
     return `
-      <div class="eyebrow">Build your tap</div>
+      <div class="eyebrow">Build your system</div>
       <h1 class="q">Last thing - let's make sure it fits</h1>
       <p class="sub">Your system installs in the cabinet under your sink. A quick check now saves a wasted visit later.</p>
 
@@ -847,8 +847,36 @@ function render(){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
+// Deep-link pre-select: /finder?fn=sparkling (or chilled, boiling; comma-separated).
+// fn=filter or fn=ro pre-selects the RO upgrade. Lets the homepage section CTAs
+// drop a hot visitor straight in with step 1 already answered.
+(function preselectFromQuery(){
+  const raw=new URLSearchParams(location.search).get('fn');
+  if(!raw) return;
+  raw.toLowerCase().split(',').map(s=>s.trim()).forEach(v=>{
+    if(v==='chilled'||v==='sparkling'||v==='boiling') state.functions.add(v);
+    else if(v==='filter'||v==='ro') state.filtration='ro';
+  });
+  if(state.functions.has('sparkling')) state.functions.add('chilled');
+})();
+
+// Analytics hook - mirrors the homepage helper. No-op until GA4/Plausible is added.
+function track(name,params){
+  try{
+    if(window.gtag){window.gtag('event',name,params||{});}
+    else if(window.plausible){window.plausible(name,{props:params||{}});}
+    else{(window.dataLayer=window.dataLayer||[]).push(Object.assign({event:name},params||{}));}
+  }catch(e){}
+}
 preloadTaps();
 render();
+track('finder_start',{});
+// Fire price_shown once the visitor reaches the price screen (step 5).
+(function(){
+  const _render=render;
+  let priced=false;
+  render=function(){ _render(); if(state.step===5 && !priced){ priced=true; track('price_shown',{total:calcPrice()}); } };
+})();
 </script>
 </body>
 </html>
