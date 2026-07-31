@@ -75,6 +75,13 @@ header.on-hero:not(.scrolled) .brand span{color:var(--sky)}
 nav{display:flex;gap:38px;align-items:center}
 nav a{font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;font-weight:500;opacity:.85;transition:opacity .25s}
 nav a:hover{opacity:1}
+/* Between the 860px mobile menu and roomy desktop, tighten the row so the
+   six items never wrap to two lines. */
+@media(min-width:861px) and (max-width:1200px){
+  nav{gap:clamp(16px,2.2vw,34px)}
+  nav a{letter-spacing:.11em}
+  .nav-cta{padding:9px 16px}
+}
 .nav-cta{border:1px solid currentColor;padding:10px 22px;border-radius:100px;transition:background .3s,color .3s,border-color .3s}
 header.scrolled .nav-cta:hover,.nav-cta:hover{background:var(--ink);color:#fff;border-color:var(--ink);opacity:1}
 .menu-btn{display:none;background:none;border:0;color:inherit;font:inherit;cursor:pointer;letter-spacing:.22em;text-transform:uppercase;font-size:11.5px}
@@ -224,6 +231,240 @@ footer .brand{font-size:14px;color:var(--ink)}
 .reveal{opacity:0;transform:translateY(26px);transition:opacity .8s ease,transform .8s ease}
 .reveal.in{opacity:1;transform:none}
 @media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
+
+/* ══════════════════════════════════════════════════════════════
+   SERVE WATER CALCULATOR
+   Scoped to .hs-calc. The theme block below is the only part that
+   knows about site tokens - and --line, --display and --body are
+   deliberately NOT redeclared, because :root already gives them
+   exactly the values the component wants.
+   ══════════════════════════════════════════════════════════════ */
+.calc-section{background:var(--mist)}
+.hs-calc{
+  --bg:var(--mist);         /* the section ground */
+  --surface:var(--white);   /* panels read as cards on it */
+  --text:var(--ink);
+  --muted:var(--ink-soft);  /* AA-legible secondary text */
+  --brand:var(--sky);
+  --deep:var(--glass);      /* figures and buttons: contrast-safe */
+  --neutral:#C3D0D8;
+  --mono:ui-monospace,'SF Mono',Menlo,monospace;
+  --r:2px;
+}
+.hs-calc,.hs-calc *,.hs-calc *::before,.hs-calc *::after{box-sizing:border-box}
+.hs-calc{color:var(--text);font-family:var(--body);font-size:16px;line-height:1.55}
+/* The site's global .field is a flex column with a gap; the calculator
+   spaces its own fields with margins, so switch it back to block. */
+.hs-calc .field{display:block}
+/* The site styles bare label/input/select/textarea for the dark contact form -
+   uppercase white labels, white underlines, 12px padding. None of that belongs
+   on a slider or a checkbox, so reset it here; the component restyles its own. */
+/* The outer .calc-section wants the site's section padding; the results
+   <section> nested inside it does not - that padding is the page's, not the
+   component's, and it was eating ~84px off each side of the results column. */
+.hs-calc .results{padding:0}
+.hs-calc label{font-size:inherit;letter-spacing:normal;text-transform:none;color:inherit;font-weight:400}
+.hs-calc input,.hs-calc select,.hs-calc textarea{background:transparent;border:0;color:inherit;
+  font:inherit;padding:0;border-radius:0}
+
+.hs-calc .h1{font-family:var(--display);font-weight:400;font-size:clamp(28px,4vw,48px);
+  line-height:1.12;letter-spacing:.01em;margin:0 0 16px}
+.hs-calc .lede{font-size:clamp(17px,1.8vw,20px);font-weight:300;color:var(--muted);max-width:54ch;margin:0}
+.hs-calc__head{margin-bottom:clamp(40px,6vh,64px)}
+
+.hs-calc .grid{display:grid;grid-template-columns:1fr;gap:2.5rem}
+@media(min-width:960px){
+  .hs-calc .grid{grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:clamp(48px,5vw,90px)}
+  .hs-calc .col-out{position:sticky;top:96px;align-self:start}
+}
+
+.hs-calc .slab{display:flex;align-items:baseline;gap:.875rem;border-top:1px solid var(--line);
+  padding-top:1rem;margin:0 0 1.5rem}
+.hs-calc .slab-n{font-family:var(--mono);font-size:.75rem;color:var(--deep)}
+.hs-calc .slab-t{font-family:var(--mono);font-size:.6875rem;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--muted)}
+
+.hs-calc .venues{display:flex;flex-wrap:wrap;gap:.5rem;margin:0 0 2.5rem}
+/* The commercial page already has a .venue card (flex column, 16px gap, a
+   translateY hover lift). These chips share the name, so every one of those
+   properties is restated here rather than inherited. */
+.hs-calc .venue{display:inline-flex;align-items:center;flex-direction:row;gap:0;transform:none;
+  font:500 .875rem/1 var(--body);color:var(--muted);background:transparent;
+  border:1px solid var(--line);padding:.75rem 1.125rem;border-radius:var(--r);cursor:pointer;
+  transition:color .18s,border-color .18s,background .18s}
+.hs-calc .venue:hover{color:var(--text);border-color:var(--muted);transform:none}
+.hs-calc .venue[aria-pressed="true"]{color:#fff;background:var(--deep);border-color:var(--deep)}
+
+.hs-calc .field{margin:0 0 2rem}
+.hs-calc .field-top{display:flex;justify-content:space-between;align-items:center;gap:1rem;margin:0 0 .75rem}
+.hs-calc .field-label{font-size:.9375rem;color:var(--text)}
+.hs-calc .field-hint{display:block;font-size:.8125rem;color:var(--muted);margin-top:.1875rem}
+.hs-calc .field-val{font-family:var(--mono);font-size:1.375rem;color:var(--deep);white-space:nowrap;
+  font-variant-numeric:tabular-nums;min-width:3.5ch;text-align:center}
+
+/* steppers - fine adjustment without fighting a 115-value slider on a phone */
+.hs-calc .stepper{display:flex;align-items:center;gap:.5rem}
+.hs-calc .step{width:32px;height:32px;flex:none;border:1px solid var(--line);background:transparent;
+  color:var(--deep);border-radius:var(--r);cursor:pointer;font:400 1.125rem/1 var(--body);
+  display:flex;align-items:center;justify-content:center;transition:border-color .15s,background .15s}
+.hs-calc .step:hover{border-color:var(--deep);background:var(--mist)}
+
+.hs-calc input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:28px;
+  background:transparent;cursor:grab;display:block;margin:0}
+.hs-calc input[type=range]:active{cursor:grabbing}
+.hs-calc input[type=range]::-webkit-slider-runnable-track{height:2px;background:var(--line)}
+.hs-calc input[type=range]::-moz-range-track{height:2px;background:var(--line)}
+.hs-calc input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;
+  margin-top:-10px;border-radius:50%;background:var(--deep);border:0;transition:transform .15s,box-shadow .15s}
+.hs-calc input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--deep);border:0}
+.hs-calc input[type=range]:hover::-webkit-slider-thumb{transform:scale(1.1)}
+.hs-calc input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 4px var(--line)}
+.hs-calc input[type=range]:focus-visible{outline:none}
+.hs-calc .scale{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.6875rem;
+  color:var(--muted);margin-top:.375rem}
+.hs-calc .split-legend{display:flex;justify-content:space-between;font-size:.8125rem;color:var(--muted);margin-top:.5rem}
+.hs-calc .split-legend b{color:var(--text);font-family:var(--mono);font-weight:400}
+
+.hs-calc .resale{display:flex;align-items:center;gap:.75rem;margin:0 0 2rem;font-size:.9375rem;
+  color:var(--muted);cursor:pointer;user-select:none}
+.hs-calc .resale input{width:18px;height:18px;accent-color:var(--deep);cursor:pointer;margin:0}
+
+/* progressive disclosure */
+.hs-calc .more{border:1px solid var(--line);border-radius:var(--r);padding:1.125rem 1.25rem;
+  background:var(--surface);margin:0 0 1rem}
+.hs-calc .more summary{font:500 .9375rem/1 var(--body);color:var(--deep);cursor:pointer;
+  list-style:none;display:flex;align-items:center;gap:.5rem}
+.hs-calc .more summary::-webkit-details-marker{display:none}
+.hs-calc .more summary::before{content:"+";font-family:var(--mono);font-size:1rem}
+.hs-calc .more[open] summary::before{content:"-"}
+.hs-calc .more[open] summary{margin-bottom:1.75rem}
+.hs-calc .more .field:last-of-type{margin-bottom:.5rem}
+.hs-calc .more-note{font-size:.8125rem;color:var(--muted);margin:.5rem 0 0;max-width:none}
+
+/* ---- results ---- */
+.hs-calc .headline{font-family:var(--display);font-weight:400;line-height:1.25;
+  font-size:clamp(21px,2.6vw,30px);letter-spacing:.01em;margin:0 0 1.75rem;max-width:30ch}
+.hs-calc .headline .fig{font-style:italic;color:var(--deep)}
+
+.hs-calc .versus{display:grid;grid-template-columns:1fr auto 1fr;border:1px solid var(--line);
+  margin:0 0 2rem;background:var(--surface)}
+.hs-calc .vs-col{padding:1.5rem}
+.hs-calc .vs-mid{display:flex;align-items:center;justify-content:center;padding:0 .5rem;
+  font-family:var(--mono);font-size:.6875rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);border-left:1px solid var(--line);border-right:1px solid var(--line);background:var(--bg)}
+.hs-calc .vs-k{font-family:var(--mono);font-size:.6875rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--muted);margin:0 0 .75rem}
+.hs-calc .vs-v{font-family:var(--mono);line-height:1;font-variant-numeric:tabular-nums;margin:0;max-width:none}
+.hs-calc .vs-col--now .vs-v{color:var(--text);font-size:clamp(28px,4vw,40px)}
+.hs-calc .vs-col--us .vs-v{color:var(--deep);font-size:clamp(22px,3vw,30px)}
+.hs-calc .vs-sub{font-size:.8125rem;color:var(--muted);margin:.625rem 0 0;max-width:none}
+.hs-calc .vs-foot{grid-column:1/-1;border-top:1px solid var(--line);padding:1rem 1.5rem;
+  font-size:.875rem;color:var(--muted);margin:0;background:var(--bg);max-width:none}
+.hs-calc .vs-foot b{color:var(--deep);font-family:var(--mono);font-weight:400}
+
+.hs-calc .month{border-top:1px solid var(--line);padding-top:1.5rem;margin:0 0 2rem}
+.hs-calc .month-head{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;
+  flex-wrap:wrap;margin:0 0 1rem}
+.hs-calc .month-title{font-family:var(--mono);font-size:.6875rem;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--muted);margin:0;max-width:none}
+.hs-calc .month-days{display:grid;grid-template-columns:repeat(30,1fr);gap:3px;height:48px}
+.hs-calc .day{background:var(--line);border-radius:1px;transition:background .35s ease}
+.hs-calc .day.cost{background:var(--neutral)}
+.hs-calc .day.margin{background:var(--brand)}
+.hs-calc .month-key{display:flex;gap:1.5rem;flex-wrap:wrap;margin-top:.875rem;font-size:.8125rem;color:var(--muted)}
+.hs-calc .key{display:flex;align-items:center;gap:.5rem}
+.hs-calc .dot{width:9px;height:9px;border-radius:1px;flex:none}
+.hs-calc .dot.cost{background:var(--neutral)}
+.hs-calc .dot.margin{background:var(--brand)}
+.hs-calc .month-foot{border-top:1px solid var(--line);margin:1.125rem 0 0;padding-top:1.125rem;
+  font-size:.9375rem;color:var(--muted);max-width:none}
+.hs-calc .month-foot b{color:var(--text);font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:400}
+
+.hs-calc .panel{border:1px solid var(--line);border-left:2px solid var(--neutral);
+  padding:1.25rem 1.375rem;margin:0 0 2rem;background:var(--surface)}
+.hs-calc .panel h3{font-family:var(--mono);font-size:.6875rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--muted);margin:0 0 .75rem;font-weight:500}
+.hs-calc .panel p{margin:0;color:var(--muted);font-size:.9375rem;max-width:none}
+.hs-calc .panel strong{color:var(--text);font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:400}
+
+/* ---- CTAs: the site's pill button, declared in full so the global
+       .btn rule has nothing left to leak in ---- */
+.hs-calc .ctas{display:flex;flex-wrap:wrap;gap:.625rem;margin:0 0 1rem}
+.hs-calc .btn{display:inline-block;font-family:var(--body);font-size:11.5px;font-weight:500;
+  letter-spacing:.2em;text-transform:uppercase;line-height:1.3;padding:16px 30px;border-radius:100px;
+  border:1px solid transparent;cursor:pointer;text-decoration:none;text-align:center;
+  transition:background .3s,color .3s,border-color .3s,opacity .3s}
+.hs-calc .btn--primary{background:var(--glass);color:#fff}
+.hs-calc .btn--primary:hover{background:var(--ink)}
+.hs-calc .btn--ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.hs-calc .btn--ghost:hover{border-color:var(--ink)}
+.hs-calc .btn--share{background:transparent;color:var(--glass);border-color:var(--sky)}
+.hs-calc .btn--share:hover{background:var(--surface)}
+.hs-calc .pdf-list{margin:0 0 1.5rem;padding:0 0 0 1.125rem;color:var(--muted);font-size:.8125rem}
+.hs-calc .pdf-list li{margin:0 0 .3125rem}
+
+.hs-calc .trust{display:flex;flex-wrap:wrap;gap:.5rem 1.25rem;list-style:none;margin:0 0 2rem;
+  padding:1rem 0 0;border-top:1px solid var(--line);font-family:var(--mono);font-size:.6875rem;
+  letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.hs-calc .trust li{display:flex;align-items:center;gap:.4375rem}
+.hs-calc .trust li::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--brand);flex:none}
+
+/* capture - email only */
+.hs-calc .capture{border:1px solid var(--line);background:var(--surface);padding:1.5rem;margin:0 0 2rem;display:none}
+.hs-calc .capture.open{display:block}
+.hs-calc .capture h3{font-family:var(--display);font-weight:400;font-size:1.375rem;margin:0 0 .375rem}
+.hs-calc .capture p{color:var(--muted);font-size:.875rem;margin:0 0 1.125rem;max-width:none}
+.hs-calc .capture-row{display:flex;gap:.625rem;flex-wrap:wrap}
+.hs-calc .capture input{flex:1 1 220px;background:var(--bg);border:1px solid var(--line);color:var(--text);
+  padding:15px 16px;border-radius:var(--r);font:400 .9375rem var(--body)}
+.hs-calc .capture input:focus{outline:none;border-color:var(--brand)}
+.hs-calc .capture-note{font-size:.8125rem;margin:.875rem 0 0}
+
+.hs-calc details.assume{border-top:1px solid var(--line);padding-top:1.25rem;margin-top:2.5rem}
+.hs-calc details.assume summary{font-family:var(--mono);font-size:.6875rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--muted);cursor:pointer;list-style:none}
+.hs-calc details.assume summary::-webkit-details-marker{display:none}
+.hs-calc details.assume summary::before{content:"+ ";color:var(--deep)}
+.hs-calc details.assume[open] summary::before{content:"- "}
+.hs-calc details.assume summary:hover{color:var(--text)}
+.hs-calc .assump{margin:1.25rem 0 0;color:var(--muted);font-size:.875rem;max-width:64ch}
+.hs-calc .assump li{margin:0 0 .5rem}
+
+/* ---- signature ---- */
+.hs-calc__sign{margin-top:clamp(40px,5vw,60px);padding-top:clamp(28px,3vw,36px);
+  border-top:1px solid var(--line);display:flex;flex-direction:column;align-items:center;
+  gap:14px;text-align:center}
+.hs-calc__mark{font-family:var(--display);font-size:17px;letter-spacing:.32em;
+  text-transform:uppercase;color:var(--ink)}
+.hs-calc__mark span{color:var(--sky)}
+.hs-calc__sign-note{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--steel);
+  margin:0;line-height:2;max-width:none}
+
+/* ---- sticky mobile readout ---- */
+.hs-calc .sticky{position:fixed;left:0;right:0;bottom:0;z-index:60;display:none;align-items:center;
+  gap:1rem;padding:.75rem 1rem;background:var(--white);border-top:1px solid var(--line);
+  box-shadow:0 -4px 18px rgb(11 30 38 / .1)}
+.hs-calc .sticky.on{display:flex}
+.hs-calc .st-col{display:flex;flex-direction:column;gap:.1875rem;min-width:0}
+.hs-calc .st-k{font-family:var(--mono);font-size:.5625rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.hs-calc .st-v{font-family:var(--mono);font-size:1.0625rem;font-variant-numeric:tabular-nums;color:var(--text)}
+.hs-calc .st-v.us{color:var(--deep)}
+.hs-calc .st-cta{margin-left:auto;flex:none;background:var(--glass);color:#fff;border:0;
+  border-radius:100px;padding:13px 18px;cursor:pointer;font:500 10.5px/1 var(--body);
+  letter-spacing:.18em;text-transform:uppercase}
+@media(min-width:960px){.hs-calc .sticky.on{display:none}}
+
+@media(max-width:700px){
+  .hs-calc .versus{grid-template-columns:1fr}
+  .hs-calc .vs-mid{border-left:0;border-right:0;border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);padding:.5rem}
+  .hs-calc .ctas .btn{width:100%}
+  .hs-calc .month-days{gap:2px;height:42px}
+  /* enough that the sticky readout doesn't sit on the trust list - the rest of
+     the page carries on below, so it needs less clearance than a standalone page */
+  .hs-calc .results{padding-bottom:2rem}
+}
+@media(prefers-reduced-motion:reduce){.hs-calc *{transition:none!important}}
 </style>
 </head>
 <body>
@@ -240,6 +481,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <a href="#water">The Water</a>
     <a href="#system">The System</a>
     <a href="#sustainability">Sustainability</a>
+    <a href="#calculator">Calculator</a>
     <a href="/who-we-are?from=commercial">About us</a>
     <a class="nav-cta" href="#contact">Enquire</a>
   </nav>
@@ -382,6 +624,195 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </div>
 </section>
 
+<!-- ================= CALCULATOR ================= -->
+<section class="calc-section" id="calculator">
+ <div class="hs-calc">
+  <div class="hs-calc__inner">
+
+   <div class="hs-calc__head reveal">
+     <span class="eyebrow" style="display:block;margin-bottom:18px">Run your numbers</span>
+     <h2 class="h1">Serve Water Calculator</h2>
+     <p class="lede">Move the sliders to match your service.</p>
+   </div>
+
+   <div class="grid">
+
+    <!-- ============ INPUTS ============ -->
+    <div class="col-in">
+     <div class="slab"><span class="slab-n">01</span><span class="slab-t">Your venue</span></div>
+     <div class="venues" role="group" aria-label="Venue type">
+       <button class="venue" type="button" data-venue="cafe" aria-pressed="true">Caf&eacute;</button>
+       <button class="venue" type="button" data-venue="restaurant" aria-pressed="false">Restaurant</button>
+       <button class="venue" type="button" data-venue="bar" aria-pressed="false">Bar / Club</button>
+       <button class="venue" type="button" data-venue="hotel" aria-pressed="false">Hotel / Function</button>
+       <button class="venue" type="button" data-venue="kitchen" aria-pressed="false">Kitchen / Office</button>
+     </div>
+
+     <div class="slab"><span class="slab-n">02</span><span class="slab-t">Your service</span></div>
+
+     <div class="field">
+       <div class="field-top">
+         <label class="field-label" for="s-vol">Bottles served a day</label>
+         <span class="stepper">
+           <button class="step" type="button" data-step="-1" aria-label="Fewer bottles">&minus;</button>
+           <output class="field-val" id="v-vol" for="s-vol">30</output>
+           <button class="step" type="button" data-step="1" aria-label="More bottles">+</button>
+         </span>
+       </div>
+       <input type="range" id="s-vol" min="5" max="120" step="1" value="30">
+       <div class="scale"><span>5</span><span>120</span></div>
+     </div>
+
+     <details class="more" id="more">
+       <summary>Adjust prices, mix and what you pay now</summary>
+
+       <label class="resale" for="s-resell">
+         <input type="checkbox" id="s-resell" checked>
+         We charge guests for water
+       </label>
+
+       <div id="price-fields">
+         <div class="field">
+           <div class="field-top">
+             <label class="field-label" for="s-still">Menu price - still</label>
+             <output class="field-val" id="v-still" for="s-still">$6.00</output>
+           </div>
+           <input type="range" id="s-still" min="2" max="14" step="0.5" value="6">
+           <div class="scale"><span>$2</span><span>$14</span></div>
+         </div>
+
+         <div class="field">
+           <div class="field-top">
+             <label class="field-label" for="s-spark">Menu price - sparkling</label>
+             <output class="field-val" id="v-spark" for="s-spark">$8.00</output>
+           </div>
+           <input type="range" id="s-spark" min="2" max="14" step="0.5" value="8">
+           <div class="scale"><span>$2</span><span>$14</span></div>
+         </div>
+
+         <div class="field">
+           <div class="field-top">
+             <label class="field-label" for="s-split">Still - sparkling ratio</label>
+             <output class="field-val" id="v-split" for="s-split">40%</output>
+           </div>
+           <input type="range" id="s-split" min="0" max="100" step="5" value="40">
+           <div class="split-legend"><span>Still <b id="lg-still">18</b>/day</span><span><b id="lg-spark">12</b>/day Sparkling</span></div>
+         </div>
+       </div>
+
+       <div class="field">
+         <div class="field-top">
+           <label class="field-label" for="s-cost">What you pay per bottle today
+             <span class="field-hint">Average across still and sparkling, excluding GST</span></label>
+           <output class="field-val" id="v-cost" for="s-cost">$2.20</output>
+         </div>
+         <input type="range" id="s-cost" min="0.5" max="6" step="0.05" value="2.20">
+         <div class="scale"><span>$0.50</span><span>$6.00</span></div>
+         <p class="more-note">Most NZ venues average somewhere between $2.00 and $2.60 a bottle across still and sparkling. If you're not sure, leave it.</p>
+       </div>
+     </details>
+    </div>
+
+    <!-- ============ RESULTS ============ -->
+    <div class="col-out">
+     <section class="results" aria-live="polite">
+       <p class="headline" id="headline"></p>
+
+       <div class="versus">
+         <div class="vs-col vs-col--now">
+           <p class="vs-k">What you pay now</p>
+           <p class="vs-v" id="vs-now">-</p>
+           <p class="vs-sub" id="vs-now-sub">-</p>
+         </div>
+         <div class="vs-mid">vs</div>
+         <div class="vs-col vs-col--us">
+           <p class="vs-k">What you'd pay us</p>
+           <p class="vs-v" id="vs-us">-</p>
+           <p class="vs-sub" id="vs-us-sub">-</p>
+         </div>
+         <p class="vs-foot" id="vs-foot"></p>
+       </div>
+
+       <div class="month" id="month-block">
+         <div class="month-head">
+           <p class="month-title">A month of service &middot; <span id="month-count">-</span> bottles</p>
+           <p class="month-title" id="month-verdict" style="color:var(--ink)"></p>
+         </div>
+         <div class="month-days" id="month-days" aria-hidden="true"></div>
+         <div class="month-key">
+           <span class="key"><span class="dot cost"></span> <span id="key-cost">Pays our monthly fee</span></span>
+           <span class="key"><span class="dot margin"></span> Yours to keep</span>
+         </div>
+         <p class="month-foot" id="month-foot"></p>
+       </div>
+
+       <div class="panel" id="panel-nogo" style="display:none">
+         <h3>Worth a conversation first</h3>
+         <p id="copy-nogo"></p>
+       </div>
+
+       <div class="ctas">
+         <button class="btn btn--primary" type="button" id="cta-pdf">Email me the breakdown</button>
+         <a class="btn btn--ghost" href="#contact" id="cta-visit">Book a site check</a>
+       </div>
+       <ul class="pdf-list">
+         <li>Your figures, set out for whoever signs off</li>
+         <li>What the monthly plan covers</li>
+         <li>System spec and what it needs on site</li>
+       </ul>
+
+       <div class="capture" id="capture">
+         <h3>Where should we send it?</h3>
+         <p>Just an email address. No follow-up unless you ask for it.</p>
+         <div class="capture-row">
+           <input type="email" id="c-email" placeholder="you@venue.co.nz" autocomplete="email">
+           <button class="btn btn--primary" type="button" id="c-send">Send it</button>
+         </div>
+         <p class="capture-note" id="c-note" role="status"></p>
+       </div>
+
+       <div class="ctas">
+         <button class="btn btn--share" type="button" id="cta-share">Share these numbers</button>
+       </div>
+
+       <ul class="trust">
+         <li>NSF certified</li>
+         <li>Premium glass bottles, customisable</li>
+         <li>Installation included</li>
+         <li>Servicing and filters included</li>
+         <li>No capital cost</li>
+       </ul>
+     </section>
+    </div>
+   </div>
+
+   <details class="assume">
+     <summary>What these figures assume</summary>
+     <ul class="assump">
+       <li>Bottle equivalent of 750ml. Volumes and prices default to typical figures for each venue type - change them to your own and everything recalculates.</li>
+       <li>The monthly plan covers the system, installation, servicing, filter changes, CO<sub>2</sub> and your premium glass bottles, which can be customised to your venue. There is no capital cost and nothing else to budget for.</li>
+       <li>Trading assumed at seven days a week. A venue closed two days a week will serve fewer bottles across the year - drop the daily figure to match.</li>
+       <li>Revenue and margin are gross, before staff time, glassware and washing.</li>
+       <li>All figures exclude GST and are indicative until we've confirmed bench space, plumbing and power at your site.</li>
+     </ul>
+   </details>
+
+   <div class="hs-calc__sign">
+     <a class="hs-calc__mark" href="#top">Hydrate<span>Serve</span></a>
+     <p class="hs-calc__sign-note">Still &amp; sparkling, made in your venue<br>Installed and serviced nationwide</p>
+   </div>
+
+   <!-- sticky mobile readout -->
+   <div class="sticky" id="sticky">
+     <span class="st-col"><span class="st-k">You pay now</span><span class="st-v" id="st-now">-</span></span>
+     <span class="st-col"><span class="st-k">With us</span><span class="st-v us" id="st-us">-</span></span>
+     <button class="st-cta" type="button" id="st-cta">See the numbers</button>
+   </div>
+
+  </div>
+ </div>
+</section>
+
 <!-- ================= QUOTE ================= -->
 <section class="quote">
   <div class="reveal">
@@ -400,6 +831,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
     <form class="reveal" action="https://formspree.io/f/xlgovnvj" method="POST">
       <input type="hidden" name="enquiry_type" value="Commercial">
+      <!-- Filled in by the calculator when someone arrives from "Book a site check" -->
+      <input type="hidden" name="calculator_figures" id="calc-figures">
       <div class="field"><label for="name">Name</label><input id="name" name="name" type="text" required autocomplete="name"></div>
       <div class="field"><label for="venue">Venue</label><input id="venue" name="venue" type="text" required></div>
       <div class="field"><label for="email">Email</label><input id="email" name="email" type="email" required autocomplete="email"></div>
@@ -480,6 +913,324 @@ function tick(){
   requestAnimationFrame(tick);
 }
 requestAnimationFrame(tick);
+</script>
+
+<script>
+/* ══════════════════════════════════════════════════════════════
+   SERVE WATER CALCULATOR
+   Wrapped in an IIFE so none of this lands on the page's globals.
+   ══════════════════════════════════════════════════════════════ */
+(function(){
+/* ---------- pricing: one place to change everything ---------- */
+const CONFIG = {
+  monthly: 699,
+  tradingDaysPerWeek: 7,
+  tierName: "Standard",
+  formEndpoint: "https://formspree.io/f/xlgovnvj",
+  phone: "03 3667 4225"
+};
+
+/* [bottles/day, % sparkling, menu still, menu sparkling, current cost, resells] */
+const PRESETS = {
+  cafe:       [ 30, 40, 6.0, 8.0, 2.20, true],
+  restaurant: [ 55, 60, 6.0, 8.0, 2.60, true],
+  bar:        [ 45, 55, 6.0, 8.0, 2.40, true],
+  hotel:      [ 90, 50, 6.0, 8.0, 2.30, true],
+  kitchen:    [ 25, 30, 0.0, 0.0, 2.00, false]
+};
+
+const $ = id => document.getElementById(id);
+const nz  = n => "$" + Math.round(n).toLocaleString("en-NZ");
+const nzc = n => "$" + n.toFixed(2);
+const push = (event, extra={}) => {
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push(Object.assign({event}, extra));
+};
+
+const el = {
+  vol:$("s-vol"), split:$("s-split"), still:$("s-still"),
+  spark:$("s-spark"), cost:$("s-cost"), resell:$("s-resell")
+};
+let started = false;
+
+/* ---------- shareable state ----------
+   Params are namespaced so a marketing link (?utm_source=…) can never be
+   mistaken for someone opening a shared set of figures. */
+function currentVenue(){
+  const b = document.querySelector('.hs-calc .venue[aria-pressed="true"]');
+  return b ? b.dataset.venue : "cafe";
+}
+function stateQuery(){
+  return new URLSearchParams({
+    hs_t: currentVenue(), hs_v: el.vol.value, hs_s: el.split.value,
+    hs_st: el.still.value, hs_sp: el.spark.value, hs_c: el.cost.value,
+    hs_r: el.resell.checked ? 1 : 0
+  }).toString();
+}
+function shareUrl(){
+  return location.origin + location.pathname + "?" + stateQuery() + "#calculator";
+}
+function applyQuery(){
+  const q = new URLSearchParams(location.search);
+  if(!q.has("hs_v")) return false;
+  const set = (input, key) => { if(q.has(key)) input.value = q.get(key); };
+  set(el.vol,"hs_v"); set(el.split,"hs_s"); set(el.still,"hs_st");
+  set(el.spark,"hs_sp"); set(el.cost,"hs_c");
+  if(q.has("hs_r")) el.resell.checked = q.get("hs_r") === "1";
+  if(q.has("hs_t")){
+    document.querySelectorAll(".hs-calc .venue").forEach(b =>
+      b.setAttribute("aria-pressed", String(b.dataset.venue === q.get("hs_t"))));
+  }
+  return true;
+}
+
+/* ---------- maths ---------- */
+function compute(){
+  const perDay   = +el.vol.value;
+  const sparkPct = +el.split.value / 100;
+  const resells  = el.resell.checked;
+  const pStill   = resells ? +el.still.value : 0;
+  const pSpark   = resells ? +el.spark.value : 0;
+  const costNow  = +el.cost.value;
+
+  const daysYear = CONFIG.tradingDaysPerWeek * 52;
+  const perYear  = perDay * daysYear;
+  const nSpark   = perYear * sparkPct;
+  const nStill   = perYear - nSpark;
+
+  const revenue  = nStill * pStill + nSpark * pSpark;
+  const blended  = perYear ? revenue / perYear : 0;
+
+  const hsAnnual = CONFIG.monthly * 12;
+  const hsPer    = hsAnnual / perYear;
+  const nowAnnual= perYear * costNow;
+
+  const grossMargin = revenue - hsAnnual;
+  const uplift      = nowAnnual - hsAnnual;
+
+  const perMonthBottles = perYear / 12;
+  const daysToCover = blended > 0
+    ? Math.min(30, Math.ceil((CONFIG.monthly / blended) / (perMonthBottles / 30)))
+    : null;
+
+  return {perDay, perYear, nStill, nSpark, pStill, pSpark, costNow, resells,
+          revenue, blended, hsAnnual, hsPer, nowAnnual, grossMargin, uplift,
+          daysToCover, venue: currentVenue()};
+}
+
+function paintMonth(daysToCover){
+  const box = $("month-days");
+  if(box.children.length !== 30){
+    box.innerHTML = "";
+    for(let i=0;i<30;i++){ const d=document.createElement("div"); d.className="day"; box.appendChild(d); }
+  }
+  [...box.children].forEach((d,i) => {
+    d.className = "day " + (daysToCover === null ? "" : (i < daysToCover ? "cost" : "margin"));
+  });
+}
+
+function render(){
+  const d = compute();
+  const daysYear = CONFIG.tradingDaysPerWeek * 52;
+
+  /* inputs */
+  $("v-vol").textContent    = d.perDay;
+  $("v-split").textContent  = el.split.value + "%";
+  $("lg-still").textContent = Math.round(d.nStill / daysYear);
+  $("lg-spark").textContent = Math.round(d.nSpark / daysYear);
+  $("v-still").textContent  = nzc(+el.still.value);
+  $("v-spark").textContent  = nzc(+el.spark.value);
+  $("v-cost").textContent   = nzc(d.costNow);
+  $("price-fields").style.display = d.resells ? "" : "none";
+
+  /* the comparison */
+  $("vs-now").textContent = nz(d.nowAnnual);
+  $("vs-now-sub").textContent =
+    `a year buying it in - ${nz(d.nowAnnual/12)} a month, ${nzc(d.costNow)} a bottle on average`;
+  $("vs-us").textContent  = nz(d.hsAnnual);
+  $("vs-us-sub").textContent =
+    `a year on our plan - $${CONFIG.monthly} a month, ${nzc(d.hsPer)} a bottle`;
+  $("vs-foot").innerHTML = d.uplift > 0
+    ? `Same <b>${Math.round(d.perYear).toLocaleString("en-NZ")}</b> bottles on the table - ` +
+      `<b>${nz(d.uplift)}</b> less spent getting them there.`
+    : `At this volume our fixed fee costs more than buying it in. Worth a conversation anyway.`;
+
+  /* sticky readout */
+  $("st-now").textContent = nz(d.nowAnnual);
+  $("st-us").textContent  = nz(d.hsAnnual);
+
+  if (d.resells){
+    $("headline").innerHTML =
+      `${d.perDay} bottles a day is <span class="fig">${nz(d.revenue)}</span> a year across the bar.`;
+    $("month-block").style.display = "";
+    paintMonth(d.daysToCover);
+    $("month-count").textContent = Math.round(d.perYear / 12).toLocaleString("en-NZ");
+    $("month-verdict").textContent = d.daysToCover
+      ? `Our fee is covered by day ${d.daysToCover}`
+      : "Set a menu price to see this";
+    $("month-foot").innerHTML =
+      `Of <b>${nz(d.revenue)}</b> taken at the till each year, <b>${nz(d.grossMargin)}</b> ` +
+      `stays with you once our fee is paid.`;
+  } else {
+    $("headline").innerHTML = d.uplift > 0
+      ? `You're spending <span class="fig">${nz(d.nowAnnual)}</span> a year buying water in.`
+      : `At ${d.perDay} bottles a day, buying it in is still the cheaper option.`;
+    $("month-block").style.display = "none";
+  }
+
+  const thin = d.uplift <= 0;
+  $("panel-nogo").style.display = thin ? "" : "none";
+  if (thin){
+    const breakEven = Math.ceil((CONFIG.monthly * 12) / d.costNow / daysYear);
+    $("copy-nogo").innerHTML =
+      `At <strong>${nzc(d.costNow)}</strong> a bottle on average you'd need around <strong>${breakEven}</strong> bottles a day ` +
+      `before our plan beats buying it in on cost alone. Still worth a conversation if storage, waste, ` +
+      `staff handling or water quality is what's driving this.`;
+  }
+  return d;
+}
+
+function summaryText(){
+  const d = compute();
+  return [
+    "HydrateServe - indicative figures", "",
+    `Venue type: ${d.venue}`,
+    `Volume: ${d.perDay} bottles/day (${Math.round(d.perYear).toLocaleString("en-NZ")}/year)`,
+    d.resells ? `Menu: ${nzc(d.pStill)} still / ${nzc(d.pSpark)} sparkling` : "Not resold to guests",
+    d.resells ? `Water revenue: ${nz(d.revenue)}/year` : "",
+    `What you pay now: ${nz(d.nowAnnual)}/year (${nz(d.nowAnnual/12)}/month) buying it in`,
+    `What HydrateServe costs: ${nz(d.hsAnnual)}/year ($${CONFIG.monthly}/month, all inclusive)`,
+    `Cost per bottle: ${nzc(d.hsPer)} with us vs ${nzc(d.costNow)} average bought in`,
+    d.resells ? `Margin left on water: ${nz(d.grossMargin)}/year` : "",
+    d.uplift > 0 ? `Saved on supply: ${nz(d.uplift)}/year` : "",
+    "", "See these numbers live: " + shareUrl()
+  ].filter(Boolean).join("\n");
+}
+
+/* ---------- wiring ---------- */
+function touched(){ if(!started){ started = true; push("calc_start"); } }
+
+[el.vol, el.split, el.still, el.spark, el.cost].forEach(s =>
+  s.addEventListener("input", () => { touched(); render(); }));
+el.resell.addEventListener("change", () => { touched(); render(); });
+
+document.querySelectorAll(".hs-calc .step").forEach(b =>
+  b.addEventListener("click", () => {
+    el.vol.value = Math.min(+el.vol.max, Math.max(+el.vol.min, +el.vol.value + (+b.dataset.step)));
+    touched(); render();
+  }));
+
+document.querySelectorAll(".hs-calc .venue").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".hs-calc .venue").forEach(b => b.setAttribute("aria-pressed","false"));
+    btn.setAttribute("aria-pressed","true");
+    const [v,sp,st,spk,c,r] = PRESETS[btn.dataset.venue];
+    el.vol.value = v; el.split.value = sp; el.still.value = st || 6;
+    el.spark.value = spk || 8; el.cost.value = c; el.resell.checked = r;
+    touched();
+    push("calc_venue_selected", {venue_type: btn.dataset.venue});
+    render();
+  });
+});
+
+$("cta-pdf").addEventListener("click", () => {
+  $("capture").classList.add("open"); $("c-email").focus();
+  push("pdf_request_open", compute());
+});
+
+/* Same page as the enquiry form, so carry the figures into it rather than
+   reloading with them in the URL. The href handles the scroll. */
+$("cta-visit").addEventListener("click", () => {
+  const field = $("calc-figures");
+  if(field) field.value = summaryText();
+  push("sitecheck_click", compute());
+});
+
+$("cta-share").addEventListener("click", async e => {
+  const b = e.currentTarget, label = b.textContent;
+  const text = summaryText();
+  try{
+    if(navigator.share){
+      await navigator.share({title:"HydrateServe - our numbers", text});
+    } else {
+      await navigator.clipboard.writeText(text);
+      b.textContent = "Copied to clipboard";
+      setTimeout(() => b.textContent = label, 2400);
+    }
+    push("summary_shared", compute());
+  }catch(err){ /* dismissed or unavailable */ }
+});
+
+$("c-send").addEventListener("click", async () => {
+  const email = $("c-email").value.trim();
+  const note  = $("c-note");
+  const btn   = $("c-send");
+  if(!/^\S+@\S+\.\S+$/.test(email)){
+    note.textContent = "That email address doesn't look right.";
+    $("c-email").focus();
+    return;
+  }
+  const label = btn.textContent;
+  btn.disabled = true; btn.textContent = "Sending..."; note.textContent = "";
+  const d = compute();
+  try{
+    const res = await fetch(CONFIG.formEndpoint, {
+      method:"POST",
+      headers:{"Content-Type":"application/json", "Accept":"application/json"},
+      body: JSON.stringify({
+        enquiry_type:"Commercial - calculator breakdown",
+        email,
+        tier: CONFIG.tierName,
+        venue_type: d.venue,
+        bottles_per_day: d.perDay,
+        figures: summaryText()
+      })
+    });
+    if(!res.ok) throw new Error("status " + res.status);
+    push("pdf_request_submit", d);
+    $("capture").innerHTML =
+      '<h3>On its way.</h3><p style="margin:0">We\'ll have your breakdown over within one business day.</p>';
+  }catch(err){
+    btn.disabled = false; btn.textContent = label;
+    note.textContent = "That didn't send. Please try again, or call us on " + CONFIG.phone + ".";
+  }
+});
+
+$("st-cta").addEventListener("click", () => {
+  document.querySelector(".hs-calc .ctas").scrollIntoView({behavior:"smooth", block:"center"});
+});
+
+/* Sticky bar: only while the calculator itself is on screen, once they've
+   engaged, and not when the CTAs are already in view. */
+const stickyEl = $("sticky");
+const calcEl   = document.querySelector(".hs-calc");
+let ctasVisible = false, calcVisible = false;
+function syncSticky(){
+  stickyEl.classList.toggle("on", started && calcVisible && !ctasVisible);
+}
+if("IntersectionObserver" in window){
+  new IntersectionObserver(es => { ctasVisible = es[0].isIntersecting; syncSticky(); },
+    {threshold:.4}).observe(document.querySelector(".hs-calc .ctas"));
+  new IntersectionObserver(es => { calcVisible = es[0].isIntersecting; syncSticky(); },
+    {threshold:0}).observe(calcEl);
+}
+calcEl.addEventListener("input", syncSticky);
+
+/* settled-state event carries the full input set, not just a count */
+let settle;
+calcEl.addEventListener("input", () => {
+  clearTimeout(settle);
+  settle = setTimeout(() => push("result_shown", compute()), 1200);
+});
+
+$("key-cost").textContent = "Pays our $" + CONFIG.monthly;
+if(applyQuery()){
+  started = true;
+  push("calc_opened_from_share", compute());
+  $("more").open = true;
+}
+render();
+})();
 </script>
 </body>
 </html>
