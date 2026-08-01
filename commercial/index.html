@@ -795,7 +795,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
      <ul class="assump">
        <li>Bottle equivalent of 750ml. Volumes and prices default to typical figures for each venue type - change them to your own and everything recalculates.</li>
        <li>The monthly plan covers the system, installation, servicing, filter changes, CO<sub>2</sub> and your premium glass bottles, which can be customised to your venue. There is no capital cost and nothing else to budget for.</li>
-       <li>The plan is priced in volume bands, because a high-volume venue needs a larger system and more servicing: up to 40 bottles a day is $699 a month, 41 to 80 is $1,099, and 81 or more is $1,499. Move the slider and the figure above updates to your band.</li>
+       <li>The plan is priced in volume bands, because a high-volume venue needs a larger system and more servicing: up to 40 bottles a day is $699 a month, 41 to 70 is $999, 71 to 100 is $1,299, and 101 or more is $1,599. Move the slider and the figure above updates to your band.</li>
        <li>Trading assumed at seven days a week. A venue closed two days a week will serve fewer bottles across the year - drop the daily figure to match.</li>
        <li>Revenue and margin are gross, before staff time, glassware and washing.</li>
        <li>All figures exclude GST and are indicative until we've confirmed bench space, plumbing and power at your site.</li>
@@ -933,9 +933,10 @@ requestAnimationFrame(tick);
    roughly level while the customer's saving still grows with volume.
    Mirrored in HydrateServe-commercial-pricing.xlsx - change both together. */
 const TIERS = [
-  {from: 1,  to: 40,   monthly: 699,  name: "Tier 1"},
-  {from: 41, to: 80,   monthly: 1099, name: "Tier 2"},
-  {from: 81, to: null, monthly: 1499, name: "Tier 3"}
+  {from: 1,   to: 40,   monthly: 699,  name: "Tier 1"},
+  {from: 41,  to: 70,   monthly: 999,  name: "Tier 2"},
+  {from: 71,  to: 100,  monthly: 1299, name: "Tier 3"},
+  {from: 101, to: null, monthly: 1599, name: "Tier 4"}
 ];
 const tierFor = v => TIERS.reduce((acc, t) => v >= t.from ? t : acc, TIERS[0]);
 
