@@ -19,11 +19,11 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <meta property="og:url" content="https://hydrateserve.co.nz/">
 <meta property="og:title" content="HydrateServe - Filtered, Chilled, Sparkling &amp; Boiling Water | NZ">
 <meta property="og:description" content="Filtered, chilled, sparkling and boiling water from one tap - for New Zealand homes and venues.">
-<meta property="og:image" content="https://hydrateserve.co.nz/assets/residential-hero.png">
+<meta property="og:image" content="https://hydrateserve.co.nz/assets/residential-hero.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="HydrateServe - Filtered, Chilled, Sparkling &amp; Boiling Water | NZ">
 <meta name="twitter:description" content="Filtered, chilled, sparkling and boiling water from one tap - for New Zealand homes and venues.">
-<meta name="twitter:image" content="https://hydrateserve.co.nz/assets/residential-hero.png">
+<meta name="twitter:image" content="https://hydrateserve.co.nz/assets/residential-hero.jpg">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@graph":[
 {"@type":"Organization","@id":"https://hydrateserve.co.nz/#organization","name":"HydrateServe","url":"https://hydrateserve.co.nz/","description":"Filtered, chilled, sparkling and boiling water on tap for New Zealand homes and venues. Made on site by Hydrate Filters.","telephone":"+64 3 3667 4225","areaServed":{"@type":"Country","name":"New Zealand"},"sameAs":["https://www.instagram.com/hydrateserve"],"parentOrganization":{"@type":"Organization","name":"Hydrate Filters Ltd","url":"https://hydratefilters.co.nz"}},
@@ -49,7 +49,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   --display:'Libre Baskerville',Georgia,serif;
   --body:'Figtree',sans-serif;
   --pad:clamp(24px,6vw,96px);
-  /* Exact native ratio of assets/residential-hero.png (1672x941). Must match the
+  /* Exact native ratio of assets/residential-hero.jpg (1672x941). Must match the
      photo, or object-fit:cover crops it and every pin drifts off its part. */
   --hero-ratio:1672/941;
 }
@@ -329,7 +329,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </header>
 
 <!-- ================= HERO: HOTSPOT STAGE + TOGGLE OVERLAY =================
-  Hero photo: assets/residential-hero.png. If it is ever replaced, update
+  Hero photo: assets/residential-hero.jpg. If it is ever replaced, update
   --hero-ratio (top of the stylesheet) to the new photo's native ratio.
   To place the pins: open this page with ?calibrate on the URL and click each
   part in the image - it prints the exact left/top to paste onto the pin.
@@ -339,8 +339,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <div class="stage-wrap" id="top">
   <div class="hs-stage" id="stage">
     <div class="hs-frame">
-      <img src="assets/residential-hero.png" alt="A residential kitchen showing the HydrateServe tap at the sink and the sparkling, boiling water and filtration units in the cabinet below." onerror="this.remove()">
-      <div class="placeholder">Residential hero - assets/residential-hero.png</div>
+      <img src="assets/residential-hero.jpg" alt="A residential kitchen showing the HydrateServe tap at the sink and the sparkling, boiling water and filtration units in the cabinet below." onerror="this.remove()">
+      <div class="placeholder">Residential hero - assets/residential-hero.jpg</div>
 
       <a class="pin" href="#tap" style="left:51.6%;top:38.5%" aria-label="The Tap">
         <span class="dot" aria-hidden="true"></span><span class="label">The Tap</span>
@@ -593,11 +593,19 @@ nav.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{nav.classLi
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.14});
 document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
 
-// Sticky mobile CTA: hide once the enquiry form is on screen (no point nagging then)
+// Sticky mobile CTA: hide whenever a real CTA is already on screen - over the
+// enquiry form (no point nagging then) and over the hero button, where the bar
+// would otherwise sit on top of a button that says almost the same thing.
 const stickyCta=document.querySelector('.sticky-cta');
 const contactSec=document.getElementById('contact');
-if(stickyCta&&contactSec&&'IntersectionObserver' in window){
-  new IntersectionObserver(es=>es.forEach(e=>stickyCta.classList.toggle('hide',e.isIntersecting)),{threshold:.05}).observe(contactSec);
+const heroCta=document.querySelector('.lead-cta');
+if(stickyCta&&'IntersectionObserver' in window){
+  const covering=new Set();
+  const io2=new IntersectionObserver(es=>{
+    es.forEach(e=>{ e.isIntersecting?covering.add(e.target):covering.delete(e.target); });
+    stickyCta.classList.toggle('hide',covering.size>0);
+  },{threshold:.05});
+  [contactSec,heroCta].forEach(el=>{ if(el) io2.observe(el); });
 }
 
 // Analytics hook. No-op until GA4/Plausible is added in <head>; then events fire on their own.

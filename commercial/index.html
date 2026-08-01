@@ -795,6 +795,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
      <ul class="assump">
        <li>Bottle equivalent of 750ml. Volumes and prices default to typical figures for each venue type - change them to your own and everything recalculates.</li>
        <li>The monthly plan covers the system, installation, servicing, filter changes, CO<sub>2</sub> and your premium glass bottles, which can be customised to your venue. There is no capital cost and nothing else to budget for.</li>
+       <li>The plan is priced in volume bands, because a high-volume venue needs a larger system and more servicing: up to 40 bottles a day is $699 a month, 41 to 80 is $1,099, and 81 or more is $1,499. Move the slider and the figure above updates to your band.</li>
        <li>Trading assumed at seven days a week. A venue closed two days a week will serve fewer bottles across the year - drop the daily figure to match.</li>
        <li>Revenue and margin are gross, before staff time, glassware and washing.</li>
        <li>All figures exclude GST and are indicative until we've confirmed bench space, plumbing and power at your site.</li>
@@ -925,11 +926,21 @@ requestAnimationFrame(tick);
    Wrapped in an IIFE so none of this lands on the page's globals.
    ══════════════════════════════════════════════════════════════ */
 (function(){
-/* ---------- pricing: one place to change everything ---------- */
+/* ---------- pricing: one place to change everything ----------
+   Priced in volume bands. A flat fee captured 46% of the value at 25
+   bottles/day and 8% at 120 - the same money for very different systems,
+   and the bigger installs cost more to run. Bands keep the share we take
+   roughly level while the customer's saving still grows with volume.
+   Mirrored in HydrateServe-commercial-pricing.xlsx - change both together. */
+const TIERS = [
+  {from: 1,  to: 40,   monthly: 699,  name: "Tier 1"},
+  {from: 41, to: 80,   monthly: 1099, name: "Tier 2"},
+  {from: 81, to: null, monthly: 1499, name: "Tier 3"}
+];
+const tierFor = v => TIERS.reduce((acc, t) => v >= t.from ? t : acc, TIERS[0]);
+
 const CONFIG = {
-  monthly: 699,
   tradingDaysPerWeek: 7,
-  tierName: "Standard",
   formEndpoint: "https://formspree.io/f/xlgovnvj",
   phone: "03 3667 4225"
 };
@@ -1005,7 +1016,9 @@ function compute(){
   const revenue  = nStill * pStill + nSpark * pSpark;
   const blended  = perYear ? revenue / perYear : 0;
 
-  const hsAnnual = CONFIG.monthly * 12;
+  const tier     = tierFor(perDay);
+  const monthly  = tier.monthly;
+  const hsAnnual = monthly * 12;
   const hsPer    = hsAnnual / perYear;
   const nowAnnual= perYear * costNow;
 
@@ -1014,12 +1027,12 @@ function compute(){
 
   const perMonthBottles = perYear / 12;
   const daysToCover = blended > 0
-    ? Math.min(30, Math.ceil((CONFIG.monthly / blended) / (perMonthBottles / 30)))
+    ? Math.min(30, Math.ceil((monthly / blended) / (perMonthBottles / 30)))
     : null;
 
   return {perDay, perYear, nStill, nSpark, pStill, pSpark, costNow, resells,
-          revenue, blended, hsAnnual, hsPer, nowAnnual, grossMargin, uplift,
-          daysToCover, venue: currentVenue()};
+          revenue, blended, monthly, tier: tier.name, hsAnnual, hsPer, nowAnnual,
+          grossMargin, uplift, daysToCover, venue: currentVenue()};
 }
 
 function paintMonth(daysToCover){
@@ -1053,7 +1066,8 @@ function render(){
     `a year buying it in - ${nz(d.nowAnnual/12)} a month, ${nzc(d.costNow)} a bottle on average`;
   $("vs-us").textContent  = nz(d.hsAnnual);
   $("vs-us-sub").textContent =
-    `a year on our plan - $${CONFIG.monthly} a month, ${nzc(d.hsPer)} a bottle`;
+    `a year on our plan - $${d.monthly} a month, ${nzc(d.hsPer)} a bottle`;
+  $("key-cost").textContent = "Pays our $" + d.monthly;
   $("vs-foot").innerHTML = d.uplift > 0
     ? `Same <b>${Math.round(d.perYear).toLocaleString("en-NZ")}</b> bottles on the table - ` +
       `<b>${nz(d.uplift)}</b> less spent getting them there.`
@@ -1085,7 +1099,7 @@ function render(){
   const thin = d.uplift <= 0;
   $("panel-nogo").style.display = thin ? "" : "none";
   if (thin){
-    const breakEven = Math.ceil((CONFIG.monthly * 12) / d.costNow / daysYear);
+    const breakEven = Math.ceil(d.hsAnnual / d.costNow / daysYear);
     $("copy-nogo").innerHTML =
       `At <strong>${nzc(d.costNow)}</strong> a bottle on average you'd need around <strong>${breakEven}</strong> bottles a day ` +
       `before our plan beats buying it in on cost alone. Still worth a conversation if storage, waste, ` +
@@ -1103,7 +1117,7 @@ function summaryText(){
     d.resells ? `Menu: ${nzc(d.pStill)} still / ${nzc(d.pSpark)} sparkling` : "Not resold to guests",
     d.resells ? `Water revenue: ${nz(d.revenue)}/year` : "",
     `What you pay now: ${nz(d.nowAnnual)}/year (${nz(d.nowAnnual/12)}/month) buying it in`,
-    `What HydrateServe costs: ${nz(d.hsAnnual)}/year ($${CONFIG.monthly}/month, all inclusive)`,
+    `What HydrateServe costs: ${nz(d.hsAnnual)}/year ($${d.monthly}/month, all inclusive, ${d.tier})`,
     `Cost per bottle: ${nzc(d.hsPer)} with us vs ${nzc(d.costNow)} average bought in`,
     d.resells ? `Margin left on water: ${nz(d.grossMargin)}/year` : "",
     d.uplift > 0 ? `Saved on supply: ${nz(d.uplift)}/year` : "",
@@ -1187,7 +1201,8 @@ $("c-send").addEventListener("click", async () => {
       body: JSON.stringify({
         enquiry_type:"Commercial - calculator breakdown",
         email,
-        tier: CONFIG.tierName,
+        tier: d.tier,
+        monthly_fee: d.monthly,
         venue_type: d.venue,
         bottles_per_day: d.perDay,
         figures: summaryText()
@@ -1226,7 +1241,6 @@ calcEl.addEventListener("input", () => {
   settle = setTimeout(() => push("result_shown", compute()), 1200);
 });
 
-$("key-cost").textContent = "Pays our $" + CONFIG.monthly;
 if(applyQuery()){
   started = true;
   push("calc_opened_from_share", compute());
