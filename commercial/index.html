@@ -65,11 +65,11 @@ header::before{content:"";position:absolute;inset:0;background:rgba(255,255,255,
 header.scrolled::before{opacity:1}
 header.scrolled{box-shadow:0 1px 0 var(--line)}
 .brand{display:inline-flex;align-items:center}
-.brand .logo{height:28px;width:auto;display:block}
+.brand .logo{height:42px;width:auto;display:block}
 /* Libre Baskerville is wide; shrink the logo on small phones so it can't
    push the menu button off the right edge of the header. */
-@media(max-width:480px){.brand .logo{height:24px}}
-@media(max-width:360px){.brand .logo{height:21px}}
+@media(max-width:480px){.brand .logo{height:32px}}
+@media(max-width:360px){.brand .logo{height:27px}}
 
 header.on-hero:not(.scrolled){color:#fff}
 
@@ -227,7 +227,7 @@ textarea{min-height:110px;resize:vertical}
 /* ---------- footer ---------- */
 footer{padding:56px var(--pad);display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap;border-top:1px solid var(--line);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--steel)}
 footer .brand{color:var(--ink)}
-footer .brand .logo{height:24px}
+footer .brand .logo{height:32px}
 
 /* ---------- reveal on scroll ---------- */
 .reveal{opacity:0;transform:translateY(26px);transition:opacity .8s ease,transform .8s ease}
@@ -438,7 +438,7 @@ footer .brand .logo{height:24px}
   border-top:1px solid var(--line);display:flex;flex-direction:column;align-items:center;
   gap:14px;text-align:center}
 .hs-calc__mark{display:inline-flex;align-items:center;color:var(--ink)}
-.hs-calc__mark .logo{height:26px;width:auto;display:block}
+.hs-calc__mark .logo{height:34px;width:auto;display:block}
 
 .hs-calc__sign-note{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--steel);
   margin:0;line-height:2;max-width:none}

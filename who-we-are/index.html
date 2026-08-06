@@ -53,11 +53,11 @@ header::before{content:"";position:absolute;inset:0;background:rgba(255,255,255,
 header.scrolled::before{opacity:1}
 header.scrolled{box-shadow:0 1px 0 var(--line)}
 .brand{display:inline-flex;align-items:center}
-.brand .logo{height:28px;width:auto;display:block}
+.brand .logo{height:42px;width:auto;display:block}
 /* Libre Baskerville is wide; shrink the logo on small phones so it can't
    push the menu button off the right edge of the header. */
-@media(max-width:480px){.brand .logo{height:24px}}
-@media(max-width:360px){.brand .logo{height:21px}}
+@media(max-width:480px){.brand .logo{height:32px}}
+@media(max-width:360px){.brand .logo{height:27px}}
 header.on-hero:not(.scrolled){color:#fff}
 nav{display:flex;gap:38px;align-items:center}
 nav a{font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;font-weight:500;opacity:.85;transition:opacity .25s}
@@ -108,7 +108,7 @@ section{padding:clamp(84px,12vh,150px) var(--pad)}
 
 footer{padding:56px var(--pad);display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap;border-top:1px solid var(--line);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--steel)}
 footer .brand{color:var(--ink)}
-footer .brand .logo{height:24px}
+footer .brand .logo{height:32px}
 
 .reveal{opacity:0;transform:translateY(26px);transition:opacity .8s ease,transform .8s ease}
 .reveal.in{opacity:1;transform:none}
