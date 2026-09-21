@@ -121,10 +121,8 @@ section{padding:clamp(84px,12vh,150px) var(--pad)}
 .sec-head .eyebrow{display:block;margin-bottom:18px}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:clamp(40px,6vw,110px);align-items:center}
 @media(max-width:900px){.grid-2{grid-template-columns:1fr}}
-.media-slot{aspect-ratio:4/5;border:1px solid var(--line);border-radius:2px;background:
-  radial-gradient(100% 80% at 70% 15%,rgba(15,84,104,.10),transparent 60%),
-  linear-gradient(170deg,var(--mist),#E9F0F2)}
-.media-slot .tag{font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--steel);padding:14px 16px;display:block}
+.system-media{margin:0;border:1px solid var(--line);border-radius:2px;overflow:hidden;background:var(--mist)}
+.system-media img{width:100%;height:auto;display:block}
 
 /* what it replaces */
 .replace{background:var(--mist)}
@@ -310,7 +308,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="fn reveal"><b>Sparkling</b><span>Optional on the same tap. Popular where there's client-facing meeting space.</span><span class="opt">Optional extra</span></div>
   </div>
   <div class="grid-2" style="margin-top:clamp(56px,7vh,90px)">
-    <div class="media-slot reveal" role="img" aria-label="Photograph slot - the tap installed in an office kitchen"><span class="tag">Image slot - office kitchen install</span></div>
+    <figure class="system-media reveal"><img src="/assets/office-underbench.jpg" srcset="/assets/office-underbench-800.jpg 800w, /assets/office-underbench.jpg 1200w" sizes="(max-width:900px) 100vw, 45vw" width="1200" height="1029" loading="lazy" decoding="async" alt="An open sink cupboard in an office kitchen: the HydrateServe chiller, boiling unit and filter side by side under the tap"></figure>
     <div class="reveal">
       <span class="eyebrow" style="display:block;margin-bottom:20px">Under the bench</span>
       <h2 class="display" style="font-size:clamp(24px,3vw,38px)">Takes about the space of a small bin.</h2>
