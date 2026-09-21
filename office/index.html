@@ -140,7 +140,8 @@ section{padding:clamp(84px,12vh,150px) var(--pad)}
 .fn{background:var(--white);padding:clamp(28px,3.2vw,42px)}
 .fn b{font-family:var(--display);font-weight:400;font-size:clamp(22px,2.4vw,28px);display:block;margin-bottom:12px;color:var(--glass)}
 .fn span{font-size:14.5px;color:var(--ink-soft);display:block}
-.fn .opt{font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--steel);display:block;margin-top:14px}
+.fn .opt{font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--steel);font-weight:500;display:block;margin:0 0 14px}
+.fn .opt.std{color:var(--glass);font-weight:600}
 
 /* comparison table */
 .cmp-wrap{overflow-x:auto;margin-top:clamp(40px,5vh,64px);border:1px solid var(--line)}
@@ -299,13 +300,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <section id="system">
   <div class="sec-head reveal">
     <span class="eyebrow">The System</span>
-    <h2 class="display">One tap. Everything the<br>office actually drinks.</h2>
+    <h2 class="display">One tap. Built around what<br>your office drinks.</h2>
+    <p class="lede" style="margin-top:24px">Every system starts with filtered water. Add boiling, chilled or sparkling - as many or as few as your office needs - and it all pours from the same tap.</p>
   </div>
   <div class="fn-row">
-    <div class="fn reveal"><b>Boiling</b><span>Instant, genuinely boiling water for tea and coffee, with a safety control so it can't be triggered by accident.</span></div>
-    <div class="fn reveal"><b>Chilled</b><span>Cold filtered water all day without a fridge shelf of bottles or a jug that never gets refilled.</span></div>
-    <div class="fn reveal"><b>Filtered</b><span>The part that matters. Certified filtration on every outlet, sized to your building's water.</span></div>
-    <div class="fn reveal"><b>Sparkling</b><span>Optional on the same tap. Popular where there's client-facing meeting space.</span><span class="opt">Optional extra</span></div>
+    <div class="fn reveal"><span class="opt std">Standard</span><b>Filtered</b><span>The part that matters. Certified filtration on every outlet, sized to your building's water.</span></div>
+    <div class="fn reveal"><span class="opt">Your choice</span><b>Boiling</b><span>Instant, genuinely boiling water for tea and coffee, with a safety control so it can't be triggered by accident.</span></div>
+    <div class="fn reveal"><span class="opt">Your choice</span><b>Chilled</b><span>Cold filtered water all day without a fridge shelf of bottles or a jug that never gets refilled.</span></div>
+    <div class="fn reveal"><span class="opt">Your choice</span><b>Sparkling</b><span>Chilled sparkling from the same tap. Popular where there's client-facing meeting space.</span></div>
   </div>
   <div class="grid-2" style="margin-top:clamp(56px,7vh,90px)">
     <figure class="system-media reveal"><img src="/assets/office-underbench.jpg" srcset="/assets/office-underbench-800.jpg 800w, /assets/office-underbench.jpg 1200w" sizes="(max-width:900px) 100vw, 45vw" width="1200" height="1029" loading="lazy" decoding="async" alt="An open sink cupboard in an office kitchen: the HydrateServe chiller, boiling unit and filter side by side under the tap"></figure>
